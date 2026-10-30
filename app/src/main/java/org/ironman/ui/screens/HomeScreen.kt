@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.components.RelapseDialog
 import org.ironman.ui.components.StartDateTimeDialog
@@ -74,13 +75,13 @@ fun HomeScreen(
     val isTracking by viewModel.isTracking.collectAsState()
     val quote by viewModel.currentQuote.collectAsState()
     val targetGoalDays by viewModel.targetGoalDays.collectAsState()
-    val pinEnabled by viewModel.pinEnabled.collectAsState()
     val pinCode by viewModel.pinCode.collectAsState()
     val appLanguage by viewModel.appLanguage.collectAsState()
 
-    val rankInfo = remember(streakTime.days) { viewModel.getRankInfo(streakTime.days) }
+    val rankInfo = remember(streakTime.days, appLanguage) { viewModel.getRankInfo(streakTime.days) }
 
     var showPinDialog by remember { mutableStateOf(false) }
+    var showCreatePinDialog by remember { mutableStateOf(false) }
     var showRelapseDialog by remember { mutableStateOf(false) }
     var showStartDateTimeDialog by remember { mutableStateOf(false) }
 
@@ -314,10 +315,10 @@ fun HomeScreen(
         } else {
             Button(
                 onClick = {
-                    if (pinEnabled) {
-                        showPinDialog = true
+                    if (pinCode.isBlank()) {
+                        showCreatePinDialog = true
                     } else {
-                        showRelapseDialog = true
+                        showPinDialog = true
                     }
                 },
                 modifier = Modifier
@@ -421,6 +422,18 @@ fun HomeScreen(
                 )
             }
         }
+    }
+
+    if (showCreatePinDialog) {
+        CreatePinDialog(
+            appLanguage = appLanguage,
+            onDismiss = { showCreatePinDialog = false },
+            onPinCreated = { newPin ->
+                viewModel.setPinCode(newPin)
+                showCreatePinDialog = false
+                showRelapseDialog = true
+            }
+        )
     }
 
     if (showPinDialog) {

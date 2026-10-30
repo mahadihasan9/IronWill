@@ -21,6 +21,7 @@ class StreakRepository(private val context: Context) {
         private val KEY_TARGET_GOAL = longPreferencesKey("target_goal_days")
         private val KEY_PIN_CODE = stringPreferencesKey("pin_code")
         private val KEY_PIN_ENABLED = booleanPreferencesKey("pin_enabled")
+        private val KEY_APP_LOCK_ENABLED = booleanPreferencesKey("app_lock_enabled")
         private val KEY_LANGUAGE = stringPreferencesKey("app_language")
         private val KEY_TRACKING_STATUS = booleanPreferencesKey("is_tracking")
     }
@@ -48,6 +49,10 @@ class StreakRepository(private val context: Context) {
 
     val pinEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[KEY_PIN_ENABLED] ?: true
+    }
+
+    val appLockEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[KEY_APP_LOCK_ENABLED] ?: false
     }
 
     val languageFlow: Flow<String> = context.dataStore.data.map { preferences ->
@@ -82,7 +87,13 @@ class StreakRepository(private val context: Context) {
 
     suspend fun setPinEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
-            preferences[KEY_PIN_ENABLED] = true // PIN lock is mandatory
+            preferences[KEY_PIN_ENABLED] = true
+        }
+    }
+
+    suspend fun setAppLockEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[KEY_APP_LOCK_ENABLED] = enabled
         }
     }
 

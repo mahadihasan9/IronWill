@@ -30,6 +30,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,7 +46,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinBoxInput
+import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.theme.AccentRed
 import org.ironman.ui.theme.DarkSurface
 import org.ironman.ui.theme.PrimaryCyan
@@ -59,8 +63,12 @@ fun SettingsScreen(
 ) {
     val currentLanguage by viewModel.appLanguage.collectAsState()
     val pinCode by viewModel.pinCode.collectAsState()
+    val appLockEnabled by viewModel.appLockEnabled.collectAsState()
 
     var showChangePinDialog by remember { mutableStateOf(false) }
+    var showCreatePinDialog by remember { mutableStateOf(false) }
+    var showPinDialogForToggle by remember { mutableStateOf(false) }
+    var targetToggleState by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val languageScrollState = rememberScrollState()
@@ -148,13 +156,14 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Security PIN Lock Settings (PIN is always enabled)
+        // Security PIN Lock & App Startup Lock Settings
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                // Toggle for App Startup Lock
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -173,15 +182,15 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = when (currentLanguage) {
-                                    "bn" -> "৪-ডিজিট পিন লক"
-                                    "ar" -> "قفل الرمز 4 أرقام"
-                                    "hi" -> "4-अंकीय पिन लॉक"
-                                    "ur" -> "4 ہندسوں کا پن لاک"
-                                    "es" -> "Bloqueo por PIN de 4 dígitos"
-                                    "ru" -> "4-значный PIN-код"
-                                    "zh" -> "4位数 PIN 码锁"
-                                    "ja" -> "4桁のPINロック"
-                                    else -> "4-Digit PIN Lock"
+                                    "bn" -> "অ্যাপ ওপেন পিন লক"
+                                    "ar" -> "قفل فتح التطبيق"
+                                    "hi" -> "ऐप ओपन पिन लॉक"
+                                    "ur" -> "ایپ اوپن پن لاک"
+                                    "es" -> "Bloqueo de Apertura de App"
+                                    "ru" -> "Блокировка входа в приложение"
+                                    "zh" -> "应用启动 PIN 码锁"
+                                    "ja" -> "アプリ起動PINロック"
+                                    else -> "Lock App on Startup"
                                 },
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -189,27 +198,49 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = when (currentLanguage) {
-                                    "bn" -> "অ্যাপ খোলা ও রিসেটের জন্য পিন প্রয়োজন"
-                                    "ar" -> "يتطلب الرمز لفتح التطبيق والإعادة"
-                                    "hi" -> "ऐप खोलने और रीसेट करने के लिए पिन चाहिए"
-                                    "ur" -> "ایپ کھولنے اور ری سیٹ کے لیے پن درکار ہے"
-                                    "es" -> "Requiere PIN para abrir la app y reiniciar"
-                                    "ru" -> "Требуется PIN для входа и сброса"
-                                    "zh" -> "打开应用与重置需输入 PIN"
-                                    "ja" -> "アプリ起動とリセットにPINが必要"
-                                    else -> "Requires PIN to open app & reset"
+                                    "bn" -> "প্রতিবার অ্যাপ খোলার সময় পিন প্রয়োজন (ডিফল্ট: অফ)"
+                                    "ar" -> "يتطلب الرمز في كل مرة يتم فيها فتح التطبيق"
+                                    "hi" -> "हर बार ऐप खोलने पर पिन चाहिए (डिफ़ॉल्ट: बंद)"
+                                    "ur" -> "ہر بار ایپ کھولنے پر پن درکار ہے"
+                                    "es" -> "Requiere PIN cada vez que se abre la app"
+                                    "ru" -> "Запрашивать PIN при каждом входе"
+                                    "zh" -> "每次打开应用均需输入 PIN 码"
+                                    "ja" -> "アプリ起動ごとにPINを要求"
+                                    else -> "Require 4-digit PIN every time app opens"
                                 },
                                 fontSize = 12.sp,
                                 color = TextMuted
                             )
                         }
                     }
+
+                    Switch(
+                        checked = appLockEnabled,
+                        onCheckedChange = { newState ->
+                            targetToggleState = newState
+                            if (pinCode.isBlank()) {
+                                showCreatePinDialog = true
+                            } else {
+                                showPinDialogForToggle = true
+                            }
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = PrimaryCyan,
+                            checkedTrackColor = DarkSurface
+                        )
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 OutlinedButton(
-                    onClick = { showChangePinDialog = true },
+                    onClick = {
+                        if (pinCode.isBlank()) {
+                            showCreatePinDialog = true
+                        } else {
+                            showChangePinDialog = true
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -323,6 +354,31 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+
+    if (showCreatePinDialog) {
+        CreatePinDialog(
+            appLanguage = currentLanguage,
+            onDismiss = { showCreatePinDialog = false },
+            onPinCreated = { newPin ->
+                viewModel.setPinCode(newPin)
+                viewModel.setAppLockEnabled(targetToggleState)
+                showCreatePinDialog = false
+            }
+        )
+    }
+
+    if (showPinDialogForToggle) {
+        PinVerificationDialog(
+            correctPin = pinCode,
+            title = "Security PIN Required",
+            subtitle = "Enter PIN to change App Lock setting:",
+            onDismiss = { showPinDialogForToggle = false },
+            onPinSuccess = {
+                showPinDialogForToggle = false
+                viewModel.setAppLockEnabled(targetToggleState)
+            }
+        )
     }
 
     if (showChangePinDialog) {

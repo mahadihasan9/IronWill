@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.ironman.data.StreakHistory
+import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.theme.AccentGold
 import org.ironman.ui.theme.AccentRed
@@ -52,20 +53,20 @@ fun HistoryScreen(
     modifier: Modifier = Modifier
 ) {
     val historyList by viewModel.historyList.collectAsState()
-    val pinEnabled by viewModel.pinEnabled.collectAsState()
     val pinCode by viewModel.pinCode.collectAsState()
     val appLanguage by viewModel.appLanguage.collectAsState()
 
     var showClearDialog by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showPinDialog by remember { mutableStateOf(false) }
+    var showCreatePinDialog by remember { mutableStateOf(false) }
 
     val requirePinThenExecute = { action: () -> Unit ->
-        if (pinEnabled) {
-            pendingAction = action
-            showPinDialog = true
+        pendingAction = action
+        if (pinCode.isBlank()) {
+            showCreatePinDialog = true
         } else {
-            action()
+            showPinDialog = true
         }
     }
 
@@ -183,6 +184,22 @@ fun HistoryScreen(
                 }
             }
         }
+    }
+
+    if (showCreatePinDialog) {
+        CreatePinDialog(
+            appLanguage = appLanguage,
+            onDismiss = {
+                showCreatePinDialog = false
+                pendingAction = null
+            },
+            onPinCreated = { newPin ->
+                viewModel.setPinCode(newPin)
+                showCreatePinDialog = false
+                pendingAction?.invoke()
+                pendingAction = null
+            }
+        )
     }
 
     if (showPinDialog) {

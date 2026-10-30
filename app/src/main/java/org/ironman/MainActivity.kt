@@ -87,10 +87,11 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val appLanguage by mainViewModel.appLanguage.collectAsState()
     val pinCode by mainViewModel.pinCode.collectAsState()
+    val appLockEnabled by mainViewModel.appLockEnabled.collectAsState()
 
     var isUnlockedBySession by remember { mutableStateOf(false) }
 
-    if (!isUnlockedBySession) {
+    if (appLockEnabled && pinCode.isNotBlank() && !isUnlockedBySession) {
         AppLockOverlay(
             correctPin = pinCode,
             onSaveInitialPin = { newPin ->

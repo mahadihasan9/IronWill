@@ -67,6 +67,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = true
     )
 
+    val appLockEnabled: StateFlow<Boolean> = repository.appLockEnabledFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
     val isTracking: StateFlow<Boolean> = repository.isTrackingFlow.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -201,6 +207,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setPinEnabled(enabled: Boolean) {
         viewModelScope.launch {
             repository.setPinEnabled(enabled)
+        }
+    }
+
+    fun setAppLockEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.setAppLockEnabled(enabled)
         }
     }
 
