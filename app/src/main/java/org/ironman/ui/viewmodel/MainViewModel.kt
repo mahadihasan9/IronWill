@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.ironman.data.Quote
@@ -52,12 +53,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
-    )
-
-    val targetGoalDays: StateFlow<Int> = repository.targetGoalDaysFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = 30
     )
 
     val pinCode: StateFlow<String> = repository.pinCodeFlow.stateIn(
@@ -119,6 +114,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = StreakTime()
+    )
+
+    // Dynamic Progressive Target Goal (3 -> 4 -> 5 -> 7 -> 14 -> 30 -> 60 -> 90 -> 180 -> 365)
+    val targetGoalDays: StateFlow<Int> = currentStreakTime.map { streakTime ->
+        val days = streakTime.days
+        when {
+            days < 3 -> 3
+            days < 4 -> 4
+            days < 5 -> 5
+            days < 7 -> 7
+            days < 14 -> 14
+            days < 30 -> 30
+            days < 60 -> 60
+            days < 90 -> 90
+            days < 180 -> 180
+            else -> 365
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 3
     )
 
     val stats: StateFlow<StreakStats> = combine(
