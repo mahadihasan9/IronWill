@@ -83,6 +83,12 @@ fun HistoryScreen(
                 text = when (appLanguage) {
                     "bn" -> "স্ট্রিক হিস্ট্রি"
                     "ar" -> "سجل العداد"
+                    "hi" -> "स्ट्रिक इतिहास"
+                    "ur" -> "سٹریک تاریخ"
+                    "es" -> "Historial de Rachas"
+                    "ru" -> "История серий"
+                    "zh" -> "连胜历史"
+                    "ja" -> "ストリーク履歴"
                     else -> "Streak History"
                 },
                 fontSize = 22.sp,
@@ -100,6 +106,12 @@ fun HistoryScreen(
                         text = when (appLanguage) {
                             "bn" -> "সব মুছুন"
                             "ar" -> "مسح الكل"
+                            "hi" -> "सभी हटाएं"
+                            "ur" -> "تمام صاف کریں"
+                            "es" -> "Borrar Todo"
+                            "ru" -> "Очистить всё"
+                            "zh" -> "清空全部"
+                            "ja" -> "すべて消去"
                             else -> "Clear All"
                         },
                         color = AccentRed
@@ -126,6 +138,12 @@ fun HistoryScreen(
                         text = when (appLanguage) {
                             "bn" -> "কোনো হিস্ট্রি পাওয়া যায়নি"
                             "ar" -> "لا يوجد سجل حتى الآن"
+                            "hi" -> "अभी तक कोई इतिहास नहीं है"
+                            "ur" -> "ابھی تک کوئی تاریخ نہیں ہے"
+                            "es" -> "Aún no hay historial registrado"
+                            "ru" -> "История пока пуста"
+                            "zh" -> "暂无历史记录"
+                            "ja" -> "履歴はまだありません"
                             else -> "No history recorded yet"
                         },
                         fontSize = 16.sp,
@@ -137,6 +155,12 @@ fun HistoryScreen(
                         text = when (appLanguage) {
                             "bn" -> "রিসেট করলে আপনার পূর্বের রেকর্ডগুলো এখানে দেখা যাবে।"
                             "ar" -> "ستظهر سجلاتك السابقة هنا عند إعادة الضبط"
+                            "hi" -> "रीसेट करने पर आपके पिछले रिकॉर्ड यहां दिखाई देंगे।"
+                            "ur" -> "ری سیٹ کرنے پر آپ کا ریکارڈ یہاں نظر آئے گا۔"
+                            "es" -> "Tus registros anteriores aparecerán aquí al reiniciar."
+                            "ru" -> "Ваши записи появятся здесь после сброса."
+                            "zh" -> "重置后您的历史记录将显示在此处。"
+                            "ja" -> "リセットすると以前の記録がここに表示されます。"
                             else -> "Your previous streak records will appear here when you reset."
                         },
                         fontSize = 12.sp,
@@ -221,6 +245,12 @@ fun HistoryCard(
                     text = when (appLanguage) {
                         "bn" -> "মেয়াদ: ${item.getFormattedDuration()}"
                         "ar" -> "المدة: ${item.getFormattedDuration()}"
+                        "hi" -> "अवधि: ${item.getFormattedDuration()}"
+                        "ur" -> "دورانیہ: ${item.getFormattedDuration()}"
+                        "es" -> "Duración: ${item.getFormattedDuration()}"
+                        "ru" -> "Длительность: ${item.getFormattedDuration()}"
+                        "zh" -> "时长: ${item.getFormattedDuration()}"
+                        "ja" -> "期間: ${item.getFormattedDuration()}"
                         else -> "Duration: ${item.getFormattedDuration()}"
                     },
                     fontSize = 16.sp,

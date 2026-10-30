@@ -38,16 +38,33 @@ import org.ironman.ui.theme.PrimaryCyan
 import org.ironman.ui.theme.TextMuted
 import org.ironman.ui.viewmodel.MainViewModel
 
-enum class NavigationTab(val titleEn: String, val titleBn: String, val titleAr: String, val icon: ImageVector) {
-    COUNTER("Counter", "কাউন্টার", "العداد", Icons.Default.Timer),
-    HISTORY("History", "হিস্ট্রি", "السجل", Icons.Default.History),
-    STATS("Stats", "পরিসংখ্যান", "الإحصائيات", Icons.Default.BarChart),
-    SETTINGS("Settings", "সেটিংস", "الإعدادات", Icons.Default.Settings);
+enum class NavigationTab(
+    val titleEn: String,
+    val titleBn: String,
+    val titleAr: String,
+    val titleHi: String,
+    val titleUr: String,
+    val titleEs: String,
+    val titleRu: String,
+    val titleZh: String,
+    val titleJa: String,
+    val icon: ImageVector
+) {
+    COUNTER("Counter", "কাউন্টার", "العداد", "काउंटर", "کاؤنٹر", "Contador", "Счетчик", "计时器", "カウンター", Icons.Default.Timer),
+    HISTORY("History", "হিস্ট্রি", "السجل", "इतिहास", "تاریخ", "Historial", "История", "历史", "履歴", Icons.Default.History),
+    STATS("Stats", "পরিসংখ্যান", "الإحصائيات", "आंकड़े", "شماریات", "Estadísticas", "Статистика", "统计", "統計", Icons.Default.BarChart),
+    SETTINGS("Settings", "সেটিংস", "الإعدادات", "सेटिंग्स", "سیٹنگز", "Ajustes", "Настройки", "设置", "設定", Icons.Default.Settings);
 
     fun getTitle(lang: String): String {
         return when (lang) {
             "bn" -> titleBn
             "ar" -> titleAr
+            "hi" -> titleHi
+            "ur" -> titleUr
+            "es" -> titleEs
+            "ru" -> titleRu
+            "zh" -> titleZh
+            "ja" -> titleJa
             else -> titleEn
         }
     }

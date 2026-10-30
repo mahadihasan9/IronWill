@@ -60,6 +60,12 @@ fun StartDateTimeDialog(
                 text = when (appLanguage) {
                     "bn" -> "স্ট্রিক শুরুর সময় নির্ধারণ করুন"
                     "ar" -> "تحديد وقت بدء العداد"
+                    "hi" -> "प्रारंभ तिथि और समय सेट करें"
+                    "ur" -> "شروع کی تاریخ اور وقت مقرر کریں"
+                    "es" -> "Establecer Fecha y Hora de Inicio"
+                    "ru" -> "Установить дату и время начала"
+                    "zh" -> "设置开始日期与时间"
+                    "ja" -> "開始日時を設定"
                     else -> "Set Start Date & Time"
                 },
                 color = TextPrimary,
@@ -72,6 +78,12 @@ fun StartDateTimeDialog(
                     text = when (appLanguage) {
                         "bn" -> "আপনার স্ট্রিক কখন শুরু হয়েছে নির্ধারণ করুন (যেমন: এখন থেকে, বা গতকাল থেকে):"
                         "ar" -> "اختر متى بدأ العداد (مثلاً: الآن، أو أمس):"
+                        "hi" -> "चुनें कि आपकी स्ट्रिक कब शुरू हुई थी (उदा. अभी, कल से):"
+                        "ur" -> "منتخب کریں کہ آپ کا سلسلہ کب شروع ہوا تھا:"
+                        "es" -> "Elige cuándo comenzó tu racha (ej. ahora, ayer):"
+                        "ru" -> "Выберите время начала серии (напр. сейчас, вчера):"
+                        "zh" -> "选择您的连胜何时开始（例如：现在、昨天）："
+                        "ja" -> "ストリークの開始日時を選択してください（例：今から、昨日から）："
                         else -> "Pick when your streak started (e.g. right now, yesterday, or past time):"
                     },
                     fontSize = 13.sp,
@@ -83,6 +95,12 @@ fun StartDateTimeDialog(
                     text = when (appLanguage) {
                         "bn" -> "নির্বাচিত সময়:\n${sdf.format(selectedCalendar.time)}"
                         "ar" -> "الوقت المحدد:\n${sdf.format(selectedCalendar.time)}"
+                        "hi" -> "चयनित समय:\n${sdf.format(selectedCalendar.time)}"
+                        "ur" -> "منتخب کردہ وقت:\n${sdf.format(selectedCalendar.time)}"
+                        "es" -> "Hora seleccionada:\n${sdf.format(selectedCalendar.time)}"
+                        "ru" -> "Выбранное время:\n${sdf.format(selectedCalendar.time)}"
+                        "zh" -> "已选时间:\n${sdf.format(selectedCalendar.time)}"
+                        "ja" -> "選択した時間:\n${sdf.format(selectedCalendar.time)}"
                         else -> "Selected Start Time:\n${sdf.format(selectedCalendar.time)}"
                     },
                     fontSize = 15.sp,
@@ -96,6 +114,12 @@ fun StartDateTimeDialog(
                         text = when (appLanguage) {
                             "bn" -> "ভবিষ্যতের সময় নির্ধারণ করা যাবে না!"
                             "ar" -> "لا يمكن تحديد وقت في المستقبل!"
+                            "hi" -> "भविष्य का समय सेट नहीं किया जा सकता!"
+                            "ur" -> "مستقبل کا وقت مقرر نہیں کیا جا سکتا!"
+                            "es" -> "¡La hora de inicio no puede ser en el futuro!"
+                            "ru" -> "Время начала не может быть в будущем!"
+                            "zh" -> "开始时间不能设为未来！"
+                            "ja" -> "未来の時間を開始日時に設定することはできません！"
                             else -> "Start time cannot be in the future!"
                         },
                         fontSize = 12.sp,
@@ -122,6 +146,12 @@ fun StartDateTimeDialog(
                             text = when (appLanguage) {
                                 "bn" -> "এখন থেকে"
                                 "ar" -> "الآن"
+                                "hi" -> "अभी से"
+                                "ur" -> "ابھی سے"
+                                "es" -> "Ahora Mismo"
+                                "ru" -> "Прямо сейчас"
+                                "zh" -> "现在"
+                                "ja" -> "今から"
                                 else -> "Right Now"
                             },
                             fontSize = 12.sp
@@ -141,6 +171,12 @@ fun StartDateTimeDialog(
                             text = when (appLanguage) {
                                 "bn" -> "গতকাল"
                                 "ar" -> "أمس"
+                                "hi" -> "कल से"
+                                "ur" -> "کل سے"
+                                "es" -> "Ayer"
+                                "ru" -> "Вчера"
+                                "zh" -> "昨天"
+                                "ja" -> "昨日から"
                                 else -> "Yesterday"
                             },
                             fontSize = 12.sp
@@ -174,6 +210,12 @@ fun StartDateTimeDialog(
                         text = when (appLanguage) {
                             "bn" -> "কাস্টম তারিখ ও সময়"
                             "ar" -> "تاريخ ووقت مخصص"
+                            "hi" -> "कस्टम तिथि और समय"
+                            "ur" -> "کسٹم تاریخ اور وقت"
+                            "es" -> "Elegir Fecha y Hora Personalizada"
+                            "ru" -> "Выбрать дату и время"
+                            "zh" -> "选择自定义日期与时间"
+                            "ja" -> "カスタム日時を選択"
                             else -> "Pick Custom Date & Time"
                         },
                         fontSize = 13.sp
@@ -195,6 +237,12 @@ fun StartDateTimeDialog(
                     text = when (appLanguage) {
                         "bn" -> "স্টার্ট করুন"
                         "ar" -> "ابدأ العداد"
+                        "hi" -> "शुरू करें"
+                        "ur" -> "شروع کریں"
+                        "es" -> "Iniciar"
+                        "ru" -> "Запустить"
+                        "zh" -> "开始"
+                        "ja" -> "開始"
                         else -> "Start Counter"
                     },
                     color = DarkSurface,
@@ -208,6 +256,12 @@ fun StartDateTimeDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
+                        "hi" -> "रद्द करें"
+                        "ur" -> "منسوخ"
+                        "es" -> "Cancelar"
+                        "ru" -> "Отмена"
+                        "zh" -> "取消"
+                        "ja" -> "キャンセル"
                         else -> "Cancel"
                     }
                 )

@@ -129,7 +129,13 @@ fun HomeScreen(
                     Text(
                         text = when (appLanguage) {
                             "bn" -> "পরবর্তী র্যাঙ্ক: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank} দিন বাকি)"
-                            "ar" -> "الرتبة التالية: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank} أيام)"
+                            "ar" -> "الرتبة التالية: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank} أيام متبقية)"
+                            "hi" -> "अगली रैंक: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank} दिन शेष)"
+                            "ur" -> "اگلی رینک: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank} دن باقی)"
+                            "es" -> "Siguiente Rango: ${rankInfo.nextRankTitle} (faltan ${rankInfo.daysToNextRank}d)"
+                            "ru" -> "След. ранг: ${rankInfo.nextRankTitle} (осталось ${rankInfo.daysToNextRank}д)"
+                            "zh" -> "下一等级: ${rankInfo.nextRankTitle} (还剩 ${rankInfo.daysToNextRank} 天)"
+                            "ja" -> "次のランク: ${rankInfo.nextRankTitle} (あと ${rankInfo.daysToNextRank} 日)"
                             else -> "Next Rank: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank}d left)"
                         },
                         fontSize = 12.sp,
@@ -146,7 +152,6 @@ fun HomeScreen(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(260.dp)
         ) {
-            // Subtle Shield Watermark Icon in Center Background
             Icon(
                 imageVector = Icons.Default.Security,
                 contentDescription = null,
@@ -165,12 +170,10 @@ fun HomeScreen(
 
             Canvas(modifier = Modifier.size(240.dp)) {
                 val strokeWidth = 14.dp.toPx()
-                // Background Track Ring
                 drawCircle(
                     color = CardBorder,
                     style = Stroke(width = strokeWidth)
                 )
-                // Progress Arc
                 drawArc(
                     brush = Brush.sweepGradient(
                         colors = listOf(PrimaryCyan, AccentGold, PrimaryCyan)
@@ -196,6 +199,12 @@ fun HomeScreen(
                     text = when (appLanguage) {
                         "bn" -> "দিন"
                         "ar" -> "أيام"
+                        "hi" -> "दिन"
+                        "ur" -> "دن"
+                        "es" -> "DÍAS"
+                        "ru" -> "ДНЕЙ"
+                        "zh" -> "天"
+                        "ja" -> "日"
                         else -> if (streakTime.days == 1L) "DAY" else "DAYS"
                     },
                     fontSize = 14.sp,
@@ -236,6 +245,12 @@ fun HomeScreen(
                         text = when (appLanguage) {
                             "bn" -> "টার্গেট গোল: $targetGoalDays দিন"
                             "ar" -> "الهدف: $targetGoalDays أيام"
+                            "hi" -> "लक्ष्य: $targetGoalDays दिन"
+                            "ur" -> "ہدف: $targetGoalDays دن"
+                            "es" -> "Meta: $targetGoalDays Días"
+                            "ru" -> "Цель: $targetGoalDays дн."
+                            "zh" -> "目标: $targetGoalDays 天"
+                            "ja" -> "目標: $targetGoalDays 日"
                             else -> "Target Goal: $targetGoalDays Days"
                         },
                         fontSize = 14.sp,
@@ -263,9 +278,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Action Area:
-        // If NOT tracking -> Prominent Start Button (Click to set start time and start counting)
-        // If IS tracking  -> ONLY Reset/Relapse Button (Editing start time disabled while running)
+        // Action Buttons: Start Counter (if not tracking) OR Reset/Relapse (if tracking)
         if (!isTracking) {
             Button(
                 onClick = { showStartDateTimeDialog = true },
@@ -285,6 +298,12 @@ fun HomeScreen(
                     text = when (appLanguage) {
                         "bn" -> "স্টার্ট (কাউন্টার শুরু করুন)"
                         "ar" -> "ابدأ العداد"
+                        "hi" -> "काउंटर शुरू करें"
+                        "ur" -> "کاؤنٹر شروع کریں"
+                        "es" -> "Iniciar Contador"
+                        "ru" -> "Запустить счетчик"
+                        "zh" -> "开始计时"
+                        "ja" -> "カウンターを開始"
                         else -> "Start Counter"
                     },
                     color = DarkSurface,
@@ -316,6 +335,12 @@ fun HomeScreen(
                     text = when (appLanguage) {
                         "bn" -> "রিসেট / রিল্যাপ্স"
                         "ar" -> "إعادة ضبط"
+                        "hi" -> "रीसेट करें"
+                        "ur" -> "ری سیٹ کریں"
+                        "es" -> "Reiniciar / Reset"
+                        "ru" -> "Сброс"
+                        "zh" -> "重置"
+                        "ja" -> "リセット"
                         else -> "Relapse / Reset"
                     },
                     color = TextPrimary,
@@ -356,6 +381,12 @@ fun HomeScreen(
                             text = when (appLanguage) {
                                 "bn" -> "দৈনিক অনুপ্রেরণা"
                                 "ar" -> "حكمة اليوم"
+                                "hi" -> "दैनिक प्रेरणा"
+                                "ur" -> "روزانہ کی ترغیب"
+                                "es" -> "Inspiración Diaria"
+                                "ru" -> "Вдохновение дня"
+                                "zh" -> "每日感悟"
+                                "ja" -> "今日の言葉"
                                 else -> "Daily Inspiration"
                             },
                             fontSize = 12.sp,

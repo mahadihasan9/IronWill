@@ -2,6 +2,7 @@ package org.ironman.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -62,6 +63,7 @@ fun SettingsScreen(
     var showChangePinDialog by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
+    val languageScrollState = rememberScrollState()
 
     Column(
         modifier = modifier
@@ -73,6 +75,12 @@ fun SettingsScreen(
             text = when (currentLanguage) {
                 "bn" -> "সেটিংস ও নিরাপত্তা"
                 "ar" -> "الإعدادات والأمان"
+                "hi" -> "सेटिंग्स और सुरक्षा"
+                "ur" -> "سیٹنگز اور سیکیورٹی"
+                "es" -> "Ajustes y Seguridad"
+                "ru" -> "Настройки и безопасность"
+                "zh" -> "设置与安全"
+                "ja" -> "設定とセキュリティ"
                 else -> "Settings & Security"
             },
             fontSize = 22.sp,
@@ -106,13 +114,21 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(languageScrollState),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     listOf(
                         "en" to "English",
                         "bn" to "বাংলা",
-                        "ar" to "العربية"
+                        "ar" to "العربية",
+                        "hi" to "हिन्दी",
+                        "ur" to "اردو",
+                        "es" to "Español",
+                        "ru" to "Русский",
+                        "zh" to "中文",
+                        "ja" to "日本語"
                     ).forEach { (langCode, label) ->
                         FilterChip(
                             selected = currentLanguage == langCode,
@@ -159,6 +175,12 @@ fun SettingsScreen(
                                 text = when (currentLanguage) {
                                     "bn" -> "৪-ডিজিট পিন লক"
                                     "ar" -> "قفل الرمز 4 أرقام"
+                                    "hi" -> "4-अंकीय पिन लॉक"
+                                    "ur" -> "4 ہندسوں کا پن لاک"
+                                    "es" -> "Bloqueo por PIN de 4 dígitos"
+                                    "ru" -> "4-значный PIN-код"
+                                    "zh" -> "4位数 PIN 码锁"
+                                    "ja" -> "4桁のPINロック"
                                     else -> "4-Digit PIN Lock"
                                 },
                                 fontSize = 16.sp,
@@ -169,6 +191,12 @@ fun SettingsScreen(
                                 text = when (currentLanguage) {
                                     "bn" -> "অ্যাপ খোলা ও রিসেটের জন্য পিন প্রয়োজন"
                                     "ar" -> "يتطلب الرمز لفتح التطبيق والإعادة"
+                                    "hi" -> "ऐप खोलने और रीसेट करने के लिए पिन चाहिए"
+                                    "ur" -> "ایپ کھولنے اور ری سیٹ کے لیے پن درکار ہے"
+                                    "es" -> "Requiere PIN para abrir la app y reiniciar"
+                                    "ru" -> "Требуется PIN для входа и сброса"
+                                    "zh" -> "打开应用与重置需输入 PIN"
+                                    "ja" -> "アプリ起動とリセットにPINが必要"
                                     else -> "Requires PIN to open app & reset"
                                 },
                                 fontSize = 12.sp,
@@ -191,6 +219,12 @@ fun SettingsScreen(
                         text = when (currentLanguage) {
                             "bn" -> if (pinCode.isBlank()) "৪-ডিজিট পিন সেট করুন" else "৪-ডিজিট পিন পরিবর্তন করুন"
                             "ar" -> if (pinCode.isBlank()) "تعيين الرمز" else "تغيير رمز الـ 4 أرقام"
+                            "hi" -> if (pinCode.isBlank()) "4-अंकीय पिन सेट करें" else "4-अंकीय पिन बदलें"
+                            "ur" -> if (pinCode.isBlank()) "4 ہندسوں کا پن سیٹ کریں" else "4 ہندسوں کا پن تبدیل کریں"
+                            "es" -> if (pinCode.isBlank()) "Establecer PIN de 4 dígitos" else "Cambiar PIN de 4 dígitos"
+                            "ru" -> if (pinCode.isBlank()) "Установить 4-значный PIN" else "Изменить 4-значный PIN"
+                            "zh" -> if (pinCode.isBlank()) "设置 4位数 PIN 码" else "修改 4位数 PIN 码"
+                            "ja" -> if (pinCode.isBlank()) "4桁のPINを設定" else "4桁のPINを変更"
                             else -> if (pinCode.isBlank()) "Set 4-Digit PIN" else "Change 4-Digit PIN"
                         }
                     )
@@ -218,6 +252,12 @@ fun SettingsScreen(
                         text = when (currentLanguage) {
                             "bn" -> "ডেভেলপার সম্পর্কে"
                             "ar" -> "عن المطور"
+                            "hi" -> "डेवलपर के बारे में"
+                            "ur" -> "ڈویلپر کے بارے میں"
+                            "es" -> "Acerca del Desarrollador"
+                            "ru" -> "О разработчике"
+                            "zh" -> "关于开发者"
+                            "ja" -> "開発者について"
                             else -> "About Developer"
                         },
                         fontSize = 16.sp,
@@ -239,6 +279,12 @@ fun SettingsScreen(
                     text = when (currentLanguage) {
                         "bn" -> "আইরন উইল অ্যাপের ক্রিয়েটর ও ডেভেলপার"
                         "ar" -> "مطور تطبيق Iron Will"
+                        "hi" -> "आयरन विल ऐप के निर्माता और डेवलपर"
+                        "ur" -> "آئرن ول ایپ کے کریئیٹر اور ڈویلپر"
+                        "es" -> "Creador y Desarrollador de la App Iron Will"
+                        "ru" -> "Создатель и разработчик приложения Iron Will"
+                        "zh" -> "Iron Will 应用的创作者与开发者"
+                        "ja" -> "Iron Will アプリの制作者・開発者"
                         else -> "Creator & Developer of Iron Will App"
                     },
                     fontSize = 12.sp,
