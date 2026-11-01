@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.components.RelapseDialog
@@ -80,10 +82,22 @@ fun HomeScreen(
 
     val rankInfo = remember(streakTime.days, appLanguage) { viewModel.getRankInfo(streakTime.days) }
 
+    // Navigation and 10-second ticker auto quote rotation
+    LaunchedEffect(Unit) {
+        viewModel.refreshQuote()
+        while (true) {
+            delay(10_000)
+            viewModel.refreshQuote()
+        }
+    }
+
     var showPinDialog by remember { mutableStateOf(false) }
     var showCreatePinDialog by remember { mutableStateOf(false) }
     var showRelapseDialog by remember { mutableStateOf(false) }
     var showStartDateTimeDialog by remember { mutableStateOf(false) }
+
+    // Track whether the pin creation / verification is for starting counter or resetting counter
+    var isPinActionForStart by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
 
@@ -282,7 +296,14 @@ fun HomeScreen(
         // Action Buttons: Start Counter (if not tracking) OR Reset/Relapse (if tracking)
         if (!isTracking) {
             Button(
-                onClick = { showStartDateTimeDialog = true },
+                onClick = {
+                    isPinActionForStart = true
+                    if (pinCode.isBlank()) {
+                        showCreatePinDialog = true
+                    } else {
+                        showPinDialog = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -297,7 +318,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = when (appLanguage) {
-                        "bn" -> "স্টার্ট (কাউন্টার শুরু করুন)"
+                        "bn" -> "কাউন্টার শুরু করুন (স্টার্ট)"
                         "ar" -> "ابدأ العداد"
                         "hi" -> "काउंटर शुरू करें"
                         "ur" -> "کاؤنٹر شروع کریں"
@@ -315,6 +336,7 @@ fun HomeScreen(
         } else {
             Button(
                 onClick = {
+                    isPinActionForStart = false
                     if (pinCode.isBlank()) {
                         showCreatePinDialog = true
                     } else {
@@ -334,7 +356,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = when (appLanguage) {
-                        "bn" -> "রিসেট / রিল্যাপ্স"
+                        "bn" -> "রিসেট করুন (রিল্যাপ্স)"
                         "ar" -> "إعادة ضبط"
                         "hi" -> "रीसेट करें"
                         "ur" -> "ری سیٹ کریں"
@@ -380,15 +402,15 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = when (appLanguage) {
-                                "bn" -> "দৈনিক অনুপ্রেরণা"
-                                "ar" -> "حكمة اليوم"
-                                "hi" -> "दैनिक प्रेरणा"
-                                "ur" -> "روزانہ کی ترغیب"
-                                "es" -> "Inspiración Diaria"
-                                "ru" -> "Вдохновение дня"
-                                "zh" -> "每日感悟"
-                                "ja" -> "今日の言葉"
-                                else -> "Daily Inspiration"
+                                "bn" -> "উপদেশ"
+                                "ar" -> "نصيحة وحكمة"
+                                "hi" -> "उपदेश व विचार"
+                                "ur" -> "نصیحت"
+                                "es" -> "Consejo y Sabiduría"
+                                "ru" -> "Совет и мудрость"
+                                "zh" -> "箴言"
+                                "ja" -> "助言"
+                                else -> "Advice & Wisdom"
                             },
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
@@ -431,7 +453,11 @@ fun HomeScreen(
             onPinCreated = { newPin ->
                 viewModel.setPinCode(newPin)
                 showCreatePinDialog = false
-                showRelapseDialog = true
+                if (isPinActionForStart) {
+                    showStartDateTimeDialog = true
+                } else {
+                    showRelapseDialog = true
+                }
             }
         )
     }
@@ -442,7 +468,11 @@ fun HomeScreen(
             onDismiss = { showPinDialog = false },
             onPinSuccess = {
                 showPinDialog = false
-                showRelapseDialog = true
+                if (isPinActionForStart) {
+                    showStartDateTimeDialog = true
+                } else {
+                    showRelapseDialog = true
+                }
             }
         )
     }

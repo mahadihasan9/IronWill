@@ -87,7 +87,7 @@ fun StatsScreen(
             Milestone(60, "60 Days Goal", "৬০ দিনের গোল", "هدف 60 يوم", "60 दिनों का लक्ष्य", "60 دن کا ہدف", "Meta de 60 Días", "Цель: 60 дней", "60 天目标", "60日間の目標"),
             Milestone(90, "90 Days Goal", "৯০ দিনের গোল", "هدف 90 يوم", "90 दिनों का लक्ष्य", "90 دن کا ہدف", "Meta de 90 Días", "Цель: 90 дней", "90 天目标", "90日間の目標"),
             Milestone(180, "180 Days Goal", "১৮০ দিনের গোল", "هدف 180 يوم", "180 दिनों का लक्ष्य", "180 دن کا ہدف", "Meta de 180 Días", "Цель: 180 дней", "180 天目标", "180日間の目標"),
-            Milestone(365, "1 Year Goal", "১ বছরের গোল", "هدف سنة", "1 साल का लक्ष्य", "1 سال کا ہدف", "Meta de 1 Año", "Цель: 1 год", "1 年目标", "1年間の目標")
+            Milestone(365, "1 Year Goal", "১ বছরের গোল", "هدف سنة", "1 साल का लक्ष्य", "1 साल का हدف", "Meta de 1 Año", "Цель: 1 год", "1 年目标", "1年間の目標")
         )
     }
 
@@ -103,7 +103,7 @@ fun StatsScreen(
             text = when (appLanguage) {
                 "bn" -> "পরিসংখ্যান ও অর্জনসমূহ"
                 "ar" -> "الإحصائيات والإنجازات"
-                "hi" -> "आंकड़े और उपलब्धियां"
+                "hi" -> "सांख्यिकी और उपलब्धियां"
                 "ur" -> "شماریات اور کامیابیاں"
                 "es" -> "Estadísticas y Logros"
                 "ru" -> "Статистика и достижения"
@@ -389,10 +389,10 @@ private fun formatMillisToDaysHours(millis: Long, appLanguage: String): String {
     val days = millis / (1000 * 60 * 60 * 24)
     val hours = (millis / (1000 * 60 * 60)) % 24
     return when (appLanguage) {
-        "bn" -> if (days > 0) "${days}দিন ${hours}ঘন্টা" else "${hours}ঘন্টা"
+        "bn" -> if (days > 0) "${days} দিন ${hours} ঘন্টা" else "${hours} ঘন্টা"
         "ar" -> if (days > 0) "${days} يوم ${hours} ساعة" else "${hours} ساعة"
-        "hi" -> if (days > 0) "${days}दिन ${hours}ঘंटे" else "${hours}ঘंटे"
-        "ur" -> if (days > 0) "${days}دن ${hours}گھنٹے" else "${hours}گھنٹے"
+        "hi" -> if (days > 0) "${days} दिन ${hours} घंटे" else "${hours} घंटे"
+        "ur" -> if (days > 0) "${days} دن ${hours} گھنٹے" else "${hours} گھنٹے"
         "es" -> if (days > 0) "${days}d ${hours}h" else "${hours}h"
         "ru" -> if (days > 0) "${days}д ${hours}ч" else "${hours}ч"
         "zh" -> if (days > 0) "${days}天 ${hours}小时" else "${hours}小时"

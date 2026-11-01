@@ -9,12 +9,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.ironman.ui.theme.AccentRed
@@ -31,6 +33,12 @@ fun PinVerificationDialog(
 ) {
     var pinInput by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
+
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -57,7 +65,8 @@ fun PinVerificationDialog(
                                 isError = true
                             }
                         }
-                    }
+                    },
+                    focusRequester = focusRequester
                 )
 
                 if (isError) {

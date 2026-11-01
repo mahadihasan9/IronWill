@@ -356,4 +356,10 @@ object QuotesProvider {
     fun getRandomQuote(): Quote {
         return quotes.random()
     }
+
+    fun getRandomQuoteDifferentFrom(current: Quote? = null): Quote {
+        if (current == null || quotes.size <= 1) return getRandomQuote()
+        val filtered = quotes.filter { it != current }
+        return filtered.random()
+    }
 }

@@ -2,8 +2,14 @@ package org.ironman.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +17,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
@@ -35,14 +43,19 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,24 +64,37 @@ import org.ironman.ui.components.PinBoxInput
 import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.theme.AccentRed
 import org.ironman.ui.theme.DarkSurface
+import org.ironman.ui.theme.DarkSurfaceVariant
 import org.ironman.ui.theme.PrimaryCyan
 import org.ironman.ui.theme.TextMuted
 import org.ironman.ui.theme.TextPrimary
+import org.ironman.ui.theme.TextSecondary
 import org.ironman.ui.viewmodel.MainViewModel
+import org.ironman.utils.LauncherAliasManager
 
 @Composable
 fun SettingsScreen(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val currentLanguage by viewModel.appLanguage.collectAsState()
     val pinCode by viewModel.pinCode.collectAsState()
     val appLockEnabled by viewModel.appLockEnabled.collectAsState()
+
+    val currentIconId by viewModel.selectedIconId.collectAsState()
+    val currentNameIndex by viewModel.selectedNameIndex.collectAsState()
+
+    var chosenIconId by remember(currentIconId) { mutableIntStateOf(currentIconId) }
+    var chosenNameIndex by remember(currentNameIndex) { mutableIntStateOf(currentNameIndex) }
 
     var showChangePinDialog by remember { mutableStateOf(false) }
     var showCreatePinDialog by remember { mutableStateOf(false) }
     var showPinDialogForToggle by remember { mutableStateOf(false) }
     var targetToggleState by remember { mutableStateOf(false) }
+
+    var showPinDialogForIconChange by remember { mutableStateOf(false) }
+    var showCreatePinDialogForIconChange by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val languageScrollState = rememberScrollState()
@@ -97,6 +123,169 @@ fun SettingsScreen(
         )
 
         Spacer(modifier = Modifier.height(20.dp))
+
+        // Independent App Icon & Name Disguise Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Apps,
+                        contentDescription = "App Icon & Name",
+                        tint = PrimaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "অ্যাপ আইকন ও নাম পরিবর্তন"
+                                "ar" -> "تغيير أيقونة واسم التطبيق"
+                                "hi" -> "ऐप आइकन और नाम बदलें"
+                                "ur" -> "ایپ آئیکن اور نام تبدیل کریں"
+                                "es" -> "Cambiar Icono y Nombre de App"
+                                "ru" -> "Сменить иконку и название"
+                                "zh" -> "更改图标与应用名称"
+                                "ja" -> "アイコンとアプリ名の変更"
+                                else -> "App Icon & Name Disguise"
+                            },
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "ইচ্ছামত আলাদাভাবে আইকন ও নাম সিলেক্ট করুন (পিন প্রয়োজন)"
+                                else -> "Pick any icon & name independently (PIN required)"
+                            },
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Section 1: Choose Icon (Full uncropped photo preview)
+                Text(
+                    text = when (currentLanguage) {
+                        "bn" -> "১. আইকন বেছে নিন:"
+                        "hi" -> "1. आइकन चुनें:"
+                        else -> "1. Choose App Icon:"
+                    },
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val iconScrollState = rememberScrollState()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(iconScrollState),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    LauncherAliasManager.AVAILABLE_ICONS.forEach { iconPreset ->
+                        val isSelected = chosenIconId == iconPreset.id
+                        Box(
+                            modifier = Modifier
+                                .size(68.dp)
+                                .border(
+                                    width = if (isSelected) 2.5.dp else 1.dp,
+                                    color = if (isSelected) PrimaryCyan else TextMuted.copy(alpha = 0.2f),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .background(
+                                    color = if (isSelected) PrimaryCyan.copy(alpha = 0.2f) else DarkSurfaceVariant,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .clickable { chosenIconId = iconPreset.id }
+                                .padding(6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = iconPreset.iconResId),
+                                contentDescription = iconPreset.title,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Section 2: Choose Name
+                Text(
+                    text = when (currentLanguage) {
+                        "bn" -> "২. অ্যাপের নাম বেছে নিন:"
+                        "hi" -> "2. नाम चुनें:"
+                        else -> "2. Choose App Name:"
+                    },
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val nameScrollState = rememberScrollState()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(nameScrollState),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    LauncherAliasManager.AVAILABLE_NAMES.forEachIndexed { index, name ->
+                        val isSelected = chosenNameIndex == index
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { chosenNameIndex = index },
+                            label = { Text(name, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = PrimaryCyan,
+                                selectedLabelColor = DarkSurface,
+                                containerColor = DarkSurfaceVariant,
+                                labelColor = TextPrimary
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // Section 3: Apply Disguise Button
+                val selectedName = LauncherAliasManager.AVAILABLE_NAMES.getOrNull(chosenNameIndex) ?: "Iron Will"
+                Button(
+                    onClick = {
+                        if (pinCode.isBlank()) {
+                            showCreatePinDialogForIconChange = true
+                        } else {
+                            showPinDialogForIconChange = true
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "রূপ পরিবর্তন করুন ($selectedName + Icon $chosenIconId)"
+                            else -> "Apply Disguise ($selectedName + Icon $chosenIconId)"
+                        },
+                        color = DarkSurface,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Language Selector Card
         Card(
@@ -205,7 +394,7 @@ fun SettingsScreen(
                                     "es" -> "Requiere PIN cada vez que se abre la app"
                                     "ru" -> "Запрашивать PIN при каждом входе"
                                     "zh" -> "每次打开应用均需输入 PIN 码"
-                                    "ja" -> "アプリ起動ごとにPINを要求"
+                                    "ja" -> "アプリ起動ごとにPIN को要求"
                                     else -> "Require 4-digit PIN every time app opens"
                                 },
                                 fontSize = 12.sp,
@@ -324,7 +513,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                val context = LocalContext.current
                 val githubUrl = "https://github.com/mahadihasan9"
 
                 OutlinedButton(
@@ -354,6 +542,33 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+
+    if (showCreatePinDialogForIconChange) {
+        CreatePinDialog(
+            appLanguage = currentLanguage,
+            onDismiss = { showCreatePinDialogForIconChange = false },
+            onPinCreated = { newPin ->
+                viewModel.setPinCode(newPin)
+                showCreatePinDialogForIconChange = false
+                viewModel.applyLauncherDisguise(context, chosenIconId, chosenNameIndex)
+                Toast.makeText(context, "App Disguise Updated", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    if (showPinDialogForIconChange) {
+        PinVerificationDialog(
+            correctPin = pinCode,
+            title = "Security PIN Required",
+            subtitle = "Enter PIN to change App Disguise:",
+            onDismiss = { showPinDialogForIconChange = false },
+            onPinSuccess = {
+                showPinDialogForIconChange = false
+                viewModel.applyLauncherDisguise(context, chosenIconId, chosenNameIndex)
+                Toast.makeText(context, "App Disguise Updated", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     if (showCreatePinDialog) {
@@ -406,6 +621,18 @@ fun ChangePinDialog(
 
     val isOldPinNeeded = currentPin.isNotBlank()
 
+    val oldPinFocusRequester = remember { FocusRequester() }
+    val newPinFocusRequester = remember { FocusRequester() }
+    val confirmPinFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        if (isOldPinNeeded) {
+            oldPinFocusRequester.requestFocus()
+        } else {
+            newPinFocusRequester.requestFocus()
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -425,7 +652,11 @@ fun ChangePinDialog(
                         onPinChange = {
                             oldPinInput = it
                             errorMessage = ""
-                        }
+                            if (it.length == 4) {
+                                newPinFocusRequester.requestFocus()
+                            }
+                        },
+                        focusRequester = oldPinFocusRequester
                     )
                     Spacer(modifier = Modifier.height(14.dp))
                 }
@@ -437,7 +668,11 @@ fun ChangePinDialog(
                     onPinChange = {
                         newPinInput = it
                         errorMessage = ""
-                    }
+                        if (it.length == 4) {
+                            confirmPinFocusRequester.requestFocus()
+                        }
+                    },
+                    focusRequester = newPinFocusRequester
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -449,7 +684,8 @@ fun ChangePinDialog(
                     onPinChange = {
                         confirmPinInput = it
                         errorMessage = ""
-                    }
+                    },
+                    focusRequester = confirmPinFocusRequester
                 )
 
                 if (errorMessage.isNotBlank()) {

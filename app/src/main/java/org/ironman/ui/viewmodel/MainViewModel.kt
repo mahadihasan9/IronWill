@@ -1,6 +1,7 @@
 package org.ironman.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
@@ -16,6 +17,7 @@ import org.ironman.data.Quote
 import org.ironman.data.QuotesProvider
 import org.ironman.data.StreakHistory
 import org.ironman.data.StreakRepository
+import org.ironman.utils.LauncherAliasManager
 
 data class StreakTime(
     val days: Long = 0,
@@ -83,6 +85,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = "en"
+    )
+
+    val selectedIconId: StateFlow<Int> = repository.selectedIconIdFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 1
+    )
+
+    val selectedNameIndex: StateFlow<Int> = repository.selectedNameIndexFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
     )
 
     private val _currentTimeMillis = MutableStateFlow(System.currentTimeMillis())
@@ -169,7 +183,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     fun refreshQuote() {
-        _currentQuote.value = QuotesProvider.getRandomQuote()
+        _currentQuote.value = QuotesProvider.getRandomQuoteDifferentFrom(_currentQuote.value)
+    }
+
+    fun applyLauncherDisguise(context: Context, iconId: Int, nameIndex: Int) {
+        viewModelScope.launch {
+            repository.saveDisguiseSelection(iconId, nameIndex)
+            LauncherAliasManager.applyDisguise(context, iconId, nameIndex)
+        }
     }
 
     fun startStreak(startTimestamp: Long) {

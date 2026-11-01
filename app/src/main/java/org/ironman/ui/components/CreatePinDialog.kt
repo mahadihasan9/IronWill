@@ -9,12 +9,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +35,13 @@ fun CreatePinDialog(
     var newPinInput by remember { mutableStateOf("") }
     var confirmPinInput by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+
+    val newPinFocusRequester = remember { FocusRequester() }
+    val confirmPinFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        newPinFocusRequester.requestFocus()
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -76,7 +85,11 @@ fun CreatePinDialog(
                     onPinChange = {
                         newPinInput = it
                         errorMessage = ""
-                    }
+                        if (it.length == 4) {
+                            confirmPinFocusRequester.requestFocus()
+                        }
+                    },
+                    focusRequester = newPinFocusRequester
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -102,7 +115,8 @@ fun CreatePinDialog(
                     onPinChange = {
                         confirmPinInput = it
                         errorMessage = ""
-                    }
+                    },
+                    focusRequester = confirmPinFocusRequester
                 )
 
                 if (errorMessage.isNotBlank()) {

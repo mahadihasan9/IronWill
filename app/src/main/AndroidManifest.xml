@@ -6,22 +6,1153 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_app_icon_1"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_app_icon_1"
         android:supportsRtl="true"
         android:theme="@style/Theme.IronWill">
+
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.IronWill">
+            android:theme="@style/Theme.IronWill" />
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name1"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon1_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_1"
+            android:roundIcon="@mipmap/ic_app_icon_1"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon2_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_2"
+            android:roundIcon="@mipmap/ic_app_icon_2"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon3_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_3"
+            android:roundIcon="@mipmap/ic_app_icon_3"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon4_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_4"
+            android:roundIcon="@mipmap/ic_app_icon_4"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon5_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_5"
+            android:roundIcon="@mipmap/ic_app_icon_5"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon6_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_6"
+            android:roundIcon="@mipmap/ic_app_icon_6"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon7_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_7"
+            android:roundIcon="@mipmap/ic_app_icon_7"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon8_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_8"
+            android:roundIcon="@mipmap/ic_app_icon_8"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Iron Will"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Calculator"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Diary"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Clock"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Timer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name6"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="My App"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name7"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Notes"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name8"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Fitness"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAlias_Icon9_Name9"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_app_icon_9"
+            android:roundIcon="@mipmap/ic_app_icon_9"
+            android:label="Calendar"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
     </application>
 
 </manifest>

@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -24,6 +25,8 @@ class StreakRepository(private val context: Context) {
         private val KEY_APP_LOCK_ENABLED = booleanPreferencesKey("app_lock_enabled")
         private val KEY_LANGUAGE = stringPreferencesKey("app_language")
         private val KEY_TRACKING_STATUS = booleanPreferencesKey("is_tracking")
+        private val KEY_SELECTED_ICON_ID = intPreferencesKey("selected_icon_id")
+        private val KEY_SELECTED_NAME_INDEX = intPreferencesKey("selected_name_index")
     }
 
     val startTimestampFlow: Flow<Long> = context.dataStore.data.map { preferences ->
@@ -57,6 +60,14 @@ class StreakRepository(private val context: Context) {
 
     val languageFlow: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[KEY_LANGUAGE] ?: "en"
+    }
+
+    val selectedIconIdFlow: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[KEY_SELECTED_ICON_ID] ?: 1
+    }
+
+    val selectedNameIndexFlow: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[KEY_SELECTED_NAME_INDEX] ?: 0
     }
 
     suspend fun startStreak(timestamp: Long) {
@@ -100,6 +111,13 @@ class StreakRepository(private val context: Context) {
     suspend fun setLanguage(lang: String) {
         context.dataStore.edit { preferences ->
             preferences[KEY_LANGUAGE] = lang
+        }
+    }
+
+    suspend fun saveDisguiseSelection(iconId: Int, nameIndex: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[KEY_SELECTED_ICON_ID] = iconId
+            preferences[KEY_SELECTED_NAME_INDEX] = nameIndex
         }
     }
 
