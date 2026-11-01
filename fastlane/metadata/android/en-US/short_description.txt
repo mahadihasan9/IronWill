@@ -1,1 +1,0 @@
-Minimalist streak counter & habit tracker with app icon disguise protection.

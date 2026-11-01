@@ -1,5 +1,0 @@
-Version 2.0:
-- Updated Android adaptive launcher icons with full uncropped photo rendering.
-- Enhanced App Disguise switching stability without process termination.
-- Security PIN lock enhancements.
-- Full multi-language support improvements.
