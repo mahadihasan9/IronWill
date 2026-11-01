@@ -16,6 +16,9 @@ gen/
 out/
 build/
 app/build/
+captures/
+.kotlin/
+*.hprof
 
 # Gradle files
 .gradle/
