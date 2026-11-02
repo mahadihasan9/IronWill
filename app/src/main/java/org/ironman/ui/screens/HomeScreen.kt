@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -82,11 +83,14 @@ fun HomeScreen(
 
     val rankInfo = remember(streakTime.days, appLanguage) { viewModel.getRankInfo(streakTime.days) }
 
-    // Navigation and 10-second ticker auto quote rotation
-    LaunchedEffect(Unit) {
-        viewModel.refreshQuote()
+    // Navigation and 15-second ticker auto quote rotation (resets timer on manual change)
+    var quoteRefreshTrigger by remember { mutableIntStateOf(0) }
+    LaunchedEffect(quoteRefreshTrigger) {
+        if (quoteRefreshTrigger == 0) {
+            viewModel.refreshQuote()
+        }
         while (true) {
-            delay(10_000)
+            delay(15_000)
             viewModel.refreshQuote()
         }
     }
@@ -417,7 +421,10 @@ fun HomeScreen(
                             color = TextMuted
                         )
                     }
-                    IconButton(onClick = { viewModel.refreshQuote() }) {
+                    IconButton(onClick = {
+                        quoteRefreshTrigger++
+                        viewModel.refreshQuote()
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Autorenew,
                             contentDescription = "Refresh",

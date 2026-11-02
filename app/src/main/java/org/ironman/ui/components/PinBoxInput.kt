@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -35,11 +36,9 @@ fun PinBoxInput(
     isMasked: Boolean = true,
     focusRequester: FocusRequester? = null
 ) {
-    val focusModifier = if (focusRequester != null) {
-        modifier.focusRequester(focusRequester)
-    } else {
-        modifier
-    }
+    val fallbackFocusRequester = remember { FocusRequester() }
+    val effectiveFocusRequester = focusRequester ?: fallbackFocusRequester
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -50,8 +49,8 @@ fun PinBoxInput(
                 onPinChange(it)
             }
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-        modifier = focusModifier,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = modifier.focusRequester(effectiveFocusRequester),
         decorationBox = { innerTextField ->
             Box(
                 contentAlignment = Alignment.Center,
@@ -59,7 +58,8 @@ fun PinBoxInput(
                     interactionSource = interactionSource,
                     indication = null
                 ) {
-                    focusRequester?.requestFocus()
+                    effectiveFocusRequester.requestFocus()
+                    keyboardController?.show()
                 }
             ) {
                 Box(modifier = Modifier.size(1.dp)) {

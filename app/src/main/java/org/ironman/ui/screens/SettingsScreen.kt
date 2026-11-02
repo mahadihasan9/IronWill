@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -624,6 +625,7 @@ fun ChangePinDialog(
     val oldPinFocusRequester = remember { FocusRequester() }
     val newPinFocusRequester = remember { FocusRequester() }
     val confirmPinFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         if (isOldPinNeeded) {
@@ -631,6 +633,7 @@ fun ChangePinDialog(
         } else {
             newPinFocusRequester.requestFocus()
         }
+        keyboardController?.show()
     }
 
     AlertDialog(

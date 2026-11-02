@@ -350,6 +350,67 @@ object QuotesProvider {
             textZh = "打造如钢铁般坚韧的内心，任何一时的冲动都无法扰乱你的宁静。",
             textJa = "鉄のような意志を築けば、どんな衝動もあなたの平穏を乱すことはできない。",
             author = "Iron Will"
+        ),
+        Quote(
+            textEn = "Verily, Allah loves that when any one of you does something, he performs it with excellence and perfection.",
+            textBn = "নিশ্চয়ই আল্লাহ পছন্দ করেন যে তোমাদের কেউ যখন কোনো কাজ করবে, তা যেন নিখুঁত ও নিষ্ঠার সাথে করে।",
+            textAr = "إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ",
+            textHi = "निश्चय ही ईश्वर पसंद करता है कि जब तुममें से कोई कोई काम करे, तो उसे निपुणता और पूर्णता के साथ करे।",
+            textUr = "بے شک اللہ پسند فرماتا ہے کہ جب تم میں سے کوئی کوئی کام کرے تو اسے مہارت اور عمدگی سے کرے۔",
+            textEs = "Ciertamente, Dios ama que cuando alguno de ustedes haga un trabajo, lo realice con excelencia.",
+            textRu = "Поистине, Аллах любит, когда кто-либо из вас делает дело и доводит его до совершенства.",
+            textZh = "安拉喜爱你们在做任何事情时都精益求精。",
+            textJa = "真に、仕事を行う際にはそれを洗練させ完璧に行うことを神は愛される。",
+            author = "Prophetic Wisdom (Hadith)",
+            isHadith = true
+        ),
+        Quote(
+            textEn = "He who has a why to live can bear almost any how.",
+            textBn = "যার বাঁচার পেছনে সুনির্দিষ্ট কারণ আছে, সে যেকোনো পরিস্থিতির মুখোমুখি হতে পারে।",
+            textAr = "من لديه سبب يعيش من أجله يمكنه تحمُّل أي كيفية تقريباً.",
+            textHi = "जिसके पास जीने का कोई कारण है, वह लगभग किसी भी परिस्थिति को सहन कर सकता है।",
+            textUr = "جس کے پاس جینے کی وجہ ہو وہ تقریباً ہر صورتحال کو برداشت کر سکتا ہے۔",
+            textEs = "Quien tiene un porqué para vivir puede soportar casi cualquier cómo.",
+            textRu = "Тот, у кого есть «зачем» жить, может вынести почти любое «как».",
+            textZh = "知道自己为何而活的人，几乎能忍受任何生存境遇。",
+            textJa = "生きる目的を持つ者は、いかなる生きようにも耐えることができる。",
+            author = "Friedrich Nietzsche"
+        ),
+        Quote(
+            textEn = "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+            textBn = "আমরা বারবার যা করি, আমরা তা-ই। তাই উৎকর্ষ কোনো একক কাজ নয়, বরং একটি অভ্যাস।",
+            textAr = "نحن ما نكرر فعله. التميز إذاً ليس عملاً بل عادة.",
+            textHi = "हम वही हैं जो हम बार-बार करते हैं। इसलिए उत्कृष्टता कोई कार्य नहीं बल्कि एक आदत है।",
+            textUr = "ہم وہی ہیں جو ہم بار بار کرتے ہیں۔ لہذا عمدگی کوئی ایک عمل نہیں بلکہ ایک عادت ہے۔",
+            textEs = "Somos lo que hacemos repetidamente. La excelencia, por tanto, no es un acto, sino un hábito.",
+            textRu = "Мы — это то, что мы делаем постоянно. Совершенство — это не действие, а привычка.",
+            textZh = "习惯决定性格，性格决定命运。卓越不是一项行为，而是一种习惯。",
+            textJa = "私たちは繰り返し行うことそのものである。したがって卓越性とは行為ではなく、習慣である。",
+            author = "Aristotle"
+        ),
+        Quote(
+            textEn = "No man is free who is not master of himself.",
+            textBn = "যে ব্যক্তি নিজের ওপর নিয়ন্ত্রণ প্রতিষ্ঠা করতে পারেনি, সে কখনোই স্বাধীন নয়।",
+            textAr = "لا يوجد رجل حر إلا من كان سيداً على نفسه.",
+            textHi = "कोई भी व्यक्ति स्वतंत्र नहीं है जो स्वयं का स्वामी नहीं है।",
+            textUr = "کوئی شخص آزاد نہیں ہے جو خود کا مالک نہیں ہے۔",
+            textEs = "Ningún hombre es libre si no es dueño de sí mismo.",
+            textRu = "Ни один человек не свободен, пока он не господин самому себе.",
+            textZh = "不能自律的人，就不能算作自由的人。",
+            textJa = "自分自身の主人でない者は、誰一人として自由ではない。",
+            author = "Epictetus"
+        ),
+        Quote(
+            textEn = "You have power over your mind - not outside events. Realize this, and you will find strength.",
+            textBn = "আপনার নিজের মনের ওপর ক্ষমতা আছে, বাহ্যিক ঘটনার ওপর নয়। এটি বুঝতে পারলে আপনি অসীম শক্তি পাবেন।",
+            textAr = "لديك سلطة على عقلك - وليس الأحداث الخارجية. أدْرِكْ هذا، وستجد القوة.",
+            textHi = "आपके पास अपने मन पर शक्ति है - बाहरी घटनाओं पर नहीं। इसे समझें, और आपको ताकत मिलेगी।",
+            textUr = "آپ کا اپنے ذہن پر اختیار ہے - بیرونی واقعات پر نہیں۔ اس بات کو سمجھیں اور آپ کو طاقت ملے گی۔",
+            textEs = "Tienes poder sobre tu mente, no sobre los eventos externos. Date cuenta de esto y encontrarás fuerza.",
+            textRu = "У тебя есть власть над своим разумом, а не над внешними событиями. Осознай это, и ты обретешь силу.",
+            textZh = "你有权支配自己的心灵，而非外在的事件。意识到这一点，你就会找到力量。",
+            textJa = "あなたの心はあなた自身の支配下にある。外部の出来事ではない。それを悟れば、あなたは強さを見出すだろう。",
+            author = "Marcus Aurelius"
         )
     )
 
