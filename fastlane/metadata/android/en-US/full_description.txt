@@ -1,0 +1,10 @@
+Iron Will helps you build self-discipline, track personal streaks, and break unwanted habits.
+
+Features:
+- Live streak counter with days, hours, minutes, and seconds
+- Dynamic ranks and progressive goals
+- Motivational quotes and advice
+- Nine app icon styles and disguise labels
+- Optional PIN protection
+- Streak history and detailed statistics
+- Support for nine languages, including Bengali
