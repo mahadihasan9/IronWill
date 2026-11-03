@@ -1,5 +1,6 @@
 package org.ironman.ui.screens
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Notes
@@ -19,6 +21,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -41,6 +45,7 @@ import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.theme.AccentGold
 import org.ironman.ui.theme.AccentRed
 import org.ironman.ui.theme.DarkSurface
+import org.ironman.ui.theme.DarkSurfaceVariant
 import org.ironman.ui.theme.PrimaryCyan
 import org.ironman.ui.theme.TextMuted
 import org.ironman.ui.theme.TextPrimary
@@ -55,6 +60,9 @@ fun HistoryScreen(
     val historyList by viewModel.historyList.collectAsState()
     val pinCode by viewModel.pinCode.collectAsState()
     val appLanguage by viewModel.appLanguage.collectAsState()
+
+    val timersList by viewModel.timersList.collectAsState()
+    val activeTimer by viewModel.activeTimer.collectAsState()
 
     var showClearDialog by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -121,7 +129,47 @@ fun HistoryScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (timersList.size > 1) {
+            val timersScrollState = rememberScrollState()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(timersScrollState),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                timersList.forEach { timer ->
+                    val isSelected = timer.id == activeTimer.id
+                    val displayName = if (timer.id == "main") {
+                        when (appLanguage) {
+                            "bn" -> "মূল কাউন্টার"
+                            "ar" -> "العداد الرئيسي"
+                            "hi" -> "मुख्य काउंटर"
+                            "ur" -> "بنیادی کاؤنٹر"
+                            "es" -> "Contador Principal"
+                            "ru" -> "Главный счетчик"
+                            "zh" -> "主计时器"
+                            "ja" -> "メインタイマー"
+                            else -> "Main Counter"
+                        }
+                    } else timer.name
+
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { viewModel.selectTimer(timer.id) },
+                        label = { Text(displayName, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = PrimaryCyan,
+                            selectedLabelColor = DarkSurface,
+                            containerColor = DarkSurfaceVariant,
+                            labelColor = TextPrimary
+                        )
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         if (historyList.isEmpty()) {
             Box(
@@ -205,8 +253,18 @@ fun HistoryScreen(
     if (showPinDialog) {
         PinVerificationDialog(
             correctPin = pinCode,
-            title = "Security PIN Required",
-            subtitle = "Enter PIN to perform this deletion:",
+            appLanguage = appLanguage,
+            subtitle = when (appLanguage) {
+                "bn" -> "মুছে ফেলার কাজ সম্পন্ন করতে পিন দিন:"
+                "ar" -> "أدخل الرمز لإكمال عملية الحذف:"
+                "hi" -> "इस विलोपन को पूरा करने के लिए पिन दर्ज करें:"
+                "ur" -> "یہ حذف کا عمل مکمل کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para realizar esta eliminación:"
+                "ru" -> "Введите PIN для выполнения удаления:"
+                "zh" -> "输入 PIN 码以执行此删除操作:"
+                "ja" -> "削除を実行するにはPINを入力してください:"
+                else -> "Enter PIN to perform this deletion:"
+            },
             onDismiss = {
                 showPinDialog = false
                 pendingAction = null
@@ -222,19 +280,76 @@ fun HistoryScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear All History?") },
-            text = { Text("This action cannot be undone. Are you sure?") },
+            title = {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "সমস্ত হিস্ট্রি মুছবেন?"
+                        "ar" -> "مسح كافة السجلات؟"
+                        "hi" -> "क्या सभी इतिहास हटाएं?"
+                        "ur" -> "تمام ہسٹری صاف کریں؟"
+                        "es" -> "¿Borrar todo el historial?"
+                        "ru" -> "Очистить всю историю?"
+                        "zh" -> "清空所有历史记录？"
+                        "ja" -> "すべての履歴を消去しますか？"
+                        else -> "Clear All History?"
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "এই কাজটি পুনরায় ফিরিয়ে আনা যাবে না। আপনি কি নিশ্চিত?"
+                        "ar" -> "لا يمكن التراجع عن هذا الإجراء. هل أنت تأكد؟"
+                        "hi" -> "यह क्रिया पूर्ववत नहीं की जा सकती। क्या आप सुनिश्चित हैं?"
+                        "ur" -> "اس عمل کو واپس نہیں لایا جا سکتا۔ کیا آپ کو یقین ہے؟"
+                        "es" -> "Esta acción no se puede deshacer. ¿Estás seguro?"
+                        "ru" -> "Это действие нельзя отменить. Вы уверены?"
+                        "zh" -> "此操作无法撤销。您确定吗？"
+                        "ja" -> "この操作は取り消せません。本当によろしいですか？"
+                        else -> "This action cannot be undone. Are you sure?"
+                    },
+                    color = TextMuted
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearHistory()
                     showClearDialog = false
                 }) {
-                    Text("Clear", color = AccentRed)
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "মুছুন"
+                            "ar" -> "مسح"
+                            "hi" -> "हटाएं"
+                            "ur" -> "صاف کریں"
+                            "es" -> "Borrar"
+                            "ru" -> "Очистить"
+                            "zh" -> "清空"
+                            "ja" -> "消去"
+                            else -> "Clear"
+                        },
+                        color = AccentRed,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) {
-                    Text("Cancel")
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "বাতিল"
+                            "ar" -> "إلغاء"
+                            "hi" -> "रद्द करें"
+                            "ur" -> "منسوخ کریں"
+                            "es" -> "Cancelar"
+                            "ru" -> "Отмена"
+                            "zh" -> "取消"
+                            "ja" -> "キャンセル"
+                            else -> "Cancel"
+                        }
+                    )
                 }
             }
         )

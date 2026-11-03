@@ -17,6 +17,7 @@ import org.ironman.data.Quote
 import org.ironman.data.QuotesProvider
 import org.ironman.data.StreakHistory
 import org.ironman.data.StreakRepository
+import org.ironman.data.StreakTimer
 import org.ironman.utils.LauncherAliasManager
 
 data class StreakTime(
@@ -45,13 +46,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = StreakRepository(application)
 
-    val startTimestamp: StateFlow<Long> = repository.startTimestampFlow.stateIn(
+    val timersList: StateFlow<List<StreakTimer>> = repository.timersListFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = listOf(StreakTimer("main", "Main Counter"))
+    )
+
+    val selectedTimerId: StateFlow<String> = repository.selectedTimerIdFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = "main"
+    )
+
+    val activeTimer: StateFlow<StreakTimer> = combine(
+        timersList,
+        selectedTimerId
+    ) { timers, selectedId ->
+        timers.find { it.id == selectedId } ?: timers.firstOrNull() ?: StreakTimer("main", "Main Counter")
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = StreakTimer("main", "Main Counter")
+    )
+
+    val startTimestamp: StateFlow<Long> = activeTimer.map { it.startTimestamp }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = System.currentTimeMillis()
     )
 
-    val historyList: StateFlow<List<StreakHistory>> = repository.historyListFlow.stateIn(
+    val isTracking: StateFlow<Boolean> = activeTimer.map { it.isTracking }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+    val historyList: StateFlow<List<StreakHistory>> = activeTimer.map { it.historyList }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
@@ -70,12 +100,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     val appLockEnabled: StateFlow<Boolean> = repository.appLockEnabledFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
-
-    val isTracking: StateFlow<Boolean> = repository.isTrackingFlow.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
@@ -136,7 +160,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = StreakTime()
     )
 
-    // Dynamic Progressive Target Goal (3 -> 4 -> 5 -> 7 -> 14 -> 30 -> 60 -> 90 -> 180 -> 365)
     val targetGoalDays: StateFlow<Int> = currentStreakTime.map { streakTime ->
         val days = streakTime.days
         when {
@@ -186,6 +209,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _currentQuote.value = QuotesProvider.getRandomQuoteDifferentFrom(_currentQuote.value)
     }
 
+    fun selectTimer(timerId: String) {
+        viewModelScope.launch {
+            repository.selectTimer(timerId)
+        }
+    }
+
+    fun addNewTimer(name: String) {
+        viewModelScope.launch {
+            repository.addNewTimer(name)
+        }
+    }
+
+    fun deleteTimer(timerId: String) {
+        viewModelScope.launch {
+            repository.deleteTimer(timerId)
+        }
+    }
+
     fun applyLauncherDisguise(context: Context, iconId: Int, nameIndex: Int) {
         viewModelScope.launch {
             repository.saveDisguiseSelection(iconId, nameIndex)
@@ -195,27 +236,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startStreak(startTimestamp: Long) {
         viewModelScope.launch {
-            repository.startStreak(startTimestamp)
+            val currentTimerId = activeTimer.value.id
+            repository.startStreak(currentTimerId, startTimestamp)
             refreshQuote()
         }
     }
 
     fun resetStreak(note: String = "") {
         viewModelScope.launch {
-            repository.resetStreak(note)
+            val currentTimerId = activeTimer.value.id
+            repository.resetStreak(currentTimerId, note)
             refreshQuote()
         }
     }
 
     fun updateStartTimestamp(newTimestamp: Long) {
         viewModelScope.launch {
-            repository.saveStartTimestamp(newTimestamp)
-        }
-    }
-
-    fun updateTargetGoal(days: Int) {
-        viewModelScope.launch {
-            repository.setTargetGoalDays(days)
+            val currentTimerId = activeTimer.value.id
+            repository.saveStartTimestamp(currentTimerId, newTimestamp)
         }
     }
 
@@ -245,13 +283,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteHistoryItem(id: Long) {
         viewModelScope.launch {
-            repository.deleteHistoryItem(id)
+            val currentTimerId = activeTimer.value.id
+            repository.deleteHistoryItem(currentTimerId, id)
         }
     }
 
     fun clearHistory() {
         viewModelScope.launch {
-            repository.clearAllHistory()
+            val currentTimerId = activeTimer.value.id
+            repository.clearAllHistory(currentTimerId)
         }
     }
 

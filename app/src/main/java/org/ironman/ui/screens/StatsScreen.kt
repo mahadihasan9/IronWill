@@ -1,5 +1,6 @@
 package org.ironman.ui.screens
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,8 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,12 +77,15 @@ fun StatsScreen(
     val targetGoalDays by viewModel.targetGoalDays.collectAsState()
     val appLanguage by viewModel.appLanguage.collectAsState()
 
+    val timersList by viewModel.timersList.collectAsState()
+    val activeTimer by viewModel.activeTimer.collectAsState()
+
     val currentDays = streakTime.days
 
     val milestones = remember(appLanguage) {
         listOf(
             Milestone(3, "3 Days Goal", "৩ দিনের গোল", "هدف 3 أيام", "3 दिनों का लक्ष्य", "3 دن کا ہدف", "Meta de 3 Días", "Цель: 3 дня", "3 天目标", "3日間の目標"),
-            Milestone(4, "4 Days Goal", "৪ দিনের গোল", "هدف 4 أيام", "4 दिनों का लक्ष्य", "4 دن کا ہدف", "Meta de 4 Días", "Цель: 4 дня", "4 天目标", "4日間の目標"),
+            Milestone(4, "4 Days Goal", "৪ দিনের গোল", "هدف 4 أيام", "4 दिनों का लक्ष्य", "4 دن का हدف", "Meta de 4 Días", "Цель: 4 дня", "4 天目标", "4日間の目標"),
             Milestone(5, "5 Days Goal", "৫ দিনের গোল", "هدف 5 أيام", "5 दिनों का लक्ष्य", "5 دن کا ہدف", "Meta de 5 Días", "Цель: 5 дней", "5 天目标", "5日間の目標"),
             Milestone(7, "1 Week Goal", "১ সপ্তাহের গোল", "هدف أسبوع", "1 सप्ताह का लक्ष्य", "1 ہفتے کا ہدف", "Meta de 1 Semana", "Цель: 1 неделя", "1 周目标", "1週間の目標"),
             Milestone(14, "2 Weeks Goal", "২ সপ্তাহের গোল", "هدف أسبوعين", "2 सप्ताह का लक्ष्य", "2 ہفتے کا ہدف", "Meta de 2 Semanas", "Цель: 2 недели", "2 周目标", "2週間の目標"),
@@ -116,7 +122,47 @@ fun StatsScreen(
             color = TextPrimary
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (timersList.size > 1) {
+            val timersScrollState = rememberScrollState()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(timersScrollState),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                timersList.forEach { timer ->
+                    val isSelected = timer.id == activeTimer.id
+                    val displayName = if (timer.id == "main") {
+                        when (appLanguage) {
+                            "bn" -> "মূল কাউন্টার"
+                            "ar" -> "العداد الرئيسي"
+                            "hi" -> "मुख्य काउंटर"
+                            "ur" -> "بنیادی کاؤنٹر"
+                            "es" -> "Contador Principal"
+                            "ru" -> "Главный счетчик"
+                            "zh" -> "主计时器"
+                            "ja" -> "メインタイマー"
+                            else -> "Main Counter"
+                        }
+                    } else timer.name
+
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { viewModel.selectTimer(timer.id) },
+                        label = { Text(displayName, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = PrimaryCyan,
+                            selectedLabelColor = DarkSurface,
+                            containerColor = DarkSurfaceVariant,
+                            labelColor = TextPrimary
+                        )
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         // Current Target Goal Indicator Card (Auto Progressive)
         Card(
