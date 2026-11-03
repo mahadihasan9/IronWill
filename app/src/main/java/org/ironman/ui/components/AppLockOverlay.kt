@@ -41,6 +41,7 @@ import org.ironman.ui.theme.TextPrimary
 @Composable
 fun AppLockOverlay(
     correctPin: String,
+    appLanguage: String = "en",
     onSaveInitialPin: (newPin: String) -> Unit = {},
     onUnlockSuccess: () -> Unit
 ) {
@@ -80,7 +81,31 @@ fun AppLockOverlay(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = if (isFirstTimeSetup) "CREATE 4-DIGIT PIN" else "IRON WILL LOCKED",
+                text = if (isFirstTimeSetup) {
+                    when (appLanguage) {
+                        "bn" -> "৪-ডিজিট পিন সেট করুন"
+                        "ar" -> "إنشاء رمز أمان من 4 أرقام"
+                        "hi" -> "4-अंकीय पिन बनाएं"
+                        "ur" -> "4 ہندسوں کا سیکیورٹی پن بنائیں"
+                        "es" -> "CREAR PIN DE 4 DÍGITOS"
+                        "ru" -> "СОЗДАТЬ 4-ЗНАЧНЫЙ PIN"
+                        "zh" -> "创建 4位数 PIN 码"
+                        "ja" -> "4桁のPINコードを作成"
+                        else -> "CREATE 4-DIGIT PIN"
+                    }
+                } else {
+                    when (appLanguage) {
+                        "bn" -> "আইরন উইল লক করা আছে"
+                        "ar" -> "تطبيق IRON WILL مقفل"
+                        "hi" -> "आयरन विल लॉक है"
+                        "ur" -> "آئرن ول لاک ہے"
+                        "es" -> "IRON WILL BLOQUEADO"
+                        "ru" -> "IRON WILL ЗАБЛОКИРОВАН"
+                        "zh" -> "IRON WILL 已锁定"
+                        "ja" -> "IRON WILL ロック中"
+                        else -> "IRON WILL LOCKED"
+                    }
+                },
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
@@ -90,10 +115,31 @@ fun AppLockOverlay(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = if (isFirstTimeSetup)
-                    "Set up a 4-digit PIN to secure your app & streak"
-                else
-                    "Enter your 4-digit PIN to open the app",
+                text = if (isFirstTimeSetup) {
+                    when (appLanguage) {
+                        "bn" -> "অ্যাপ ও স্ট্রিক নিরাপদ রাখতে ৪-ডিজিট পিন সেট করুন"
+                        "ar" -> "قم بتعيين رمز مكون من 4 أرقام لحماية تطبيقك وسجلك"
+                        "hi" -> "अपने ऐप और स्ट्रिक को सुरक्षित करने के लिए 4-अंकीय पिन सेट करें"
+                        "ur" -> "اپنی ایپ اور اسٹریک کو محفوظ کرنے کے لیے 4 ہندسوں کا پن سیٹ کریں"
+                        "es" -> "Configura un PIN de 4 dígitos para asegurar tu app y racha"
+                        "ru" -> "Установите 4-значный PIN для защиты приложения и прогресса"
+                        "zh" -> "设置 4位数 PIN 码以保护您的应用与记录"
+                        "ja" -> "アプリと記録を保護するために4桁のPINを設定してください"
+                        else -> "Set up a 4-digit PIN to secure your app & streak"
+                    }
+                } else {
+                    when (appLanguage) {
+                        "bn" -> "অ্যাপে প্রবেশ করতে আপনার ৪-ডিজিট পিন দিন"
+                        "ar" -> "أدخل رمزك المكون من 4 أرقام لفتح التطبيق"
+                        "hi" -> "ऐप खोलने के लिए अपना 4-अंकीय पिन दर्ज करें"
+                        "ur" -> "ایپ کھولنے کے لیے اپنا 4 ہندسوں کا پن درج کریں"
+                        "es" -> "Introduce tu PIN de 4 dígitos para abrir la app"
+                        "ru" -> "Введите ваш 4-значный PIN для входа в приложение"
+                        "zh" -> "输入您的 4位数 PIN 码以打开应用"
+                        "ja" -> "アプリを開くには4桁のPINを入力してください"
+                        else -> "Enter your 4-digit PIN to open the app"
+                    }
+                },
                 fontSize = 14.sp,
                 color = TextMuted
             )
@@ -101,7 +147,21 @@ fun AppLockOverlay(
             Spacer(modifier = Modifier.height(28.dp))
 
             if (isFirstTimeSetup) {
-                Text(text = "Enter New PIN:", fontSize = 13.sp, color = TextMuted)
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "নতুন পিন লিখুন:"
+                        "ar" -> "أدخل الرمز الجديد:"
+                        "hi" -> "नया पिन दर्ज करें:"
+                        "ur" -> "نیا پن درج کریں:"
+                        "es" -> "Introduce el Nuevo PIN:"
+                        "ru" -> "Введите новый PIN:"
+                        "zh" -> "输入新 PIN 码:"
+                        "ja" -> "新しいPINを入力:"
+                        else -> "Enter New PIN:"
+                    },
+                    fontSize = 13.sp,
+                    color = TextMuted
+                )
                 Spacer(modifier = Modifier.height(6.dp))
                 PinBoxInput(
                     pinValue = pinInput,
@@ -117,7 +177,21 @@ fun AppLockOverlay(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Text(text = "Confirm New PIN:", fontSize = 13.sp, color = TextMuted)
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "নতুন পিন নিশ্চিত করুন:"
+                        "ar" -> "تأكيد الرمز الجديد:"
+                        "hi" -> "नए पिन की पुष्टि करें:"
+                        "ur" -> "نئے پن کی تصدیق کریں:"
+                        "es" -> "Confirmar Nuevo PIN:"
+                        "ru" -> "Подтвердите новый PIN:"
+                        "zh" -> "确认新 PIN 码:"
+                        "ja" -> "新しいPINを確認:"
+                        else -> "Confirm New PIN:"
+                    },
+                    fontSize = 13.sp,
+                    color = TextMuted
+                )
                 Spacer(modifier = Modifier.height(6.dp))
                 PinBoxInput(
                     pinValue = confirmPinInput,
@@ -143,9 +217,29 @@ fun AppLockOverlay(
                 Button(
                     onClick = {
                         if (pinInput.length != 4) {
-                            errorMessage = "PIN must be 4 digits"
+                            errorMessage = when (appLanguage) {
+                                "bn" -> "পিন অবশ্যই ৪ সংখ্যার হতে হবে"
+                                "ar" -> "يجب أن يتكون الرمز من 4 أرقام"
+                                "hi" -> "पिन 4 अंकों का होना चाहिए"
+                                "ur" -> "پن 4 ہندسوں کا ہونا ضروری ہے"
+                                "es" -> "El PIN debe tener 4 dígitos"
+                                "ru" -> "PIN должен состоять из 4 цифр"
+                                "zh" -> "PIN 码必须为 4 位数字"
+                                "ja" -> "PINは4桁で指定してください"
+                                else -> "PIN must be 4 digits"
+                            }
                         } else if (pinInput != confirmPinInput) {
-                            errorMessage = "PINs do not match"
+                            errorMessage = when (appLanguage) {
+                                "bn" -> "পিন দুটো মিলছে না"
+                                "ar" -> "الرمز غير متطابق"
+                                "hi" -> "पिन मेल नहीं खा रहे हैं"
+                                "ur" -> "پن میچ نہیں کر رہے"
+                                "es" -> "Los PIN no coinciden"
+                                "ru" -> "PIN-коды не совпадают"
+                                "zh" -> "两次输入的 PIN 码不一致"
+                                "ja" -> "PINが一致しません"
+                                else -> "PINs do not match"
+                            }
                         } else {
                             onSaveInitialPin(pinInput)
                             onUnlockSuccess()
@@ -155,7 +249,21 @@ fun AppLockOverlay(
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Text(text = "Save & Set PIN", color = DarkSurface, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "পিন সেভ করুন"
+                            "ar" -> "حفظ وتأكيد الرمز"
+                            "hi" -> "पिन सहेजें"
+                            "ur" -> "پن محفوظ کریں"
+                            "es" -> "Guardar y Establecer PIN"
+                            "ru" -> "Сохранить PIN"
+                            "zh" -> "保存并设置 PIN"
+                            "ja" -> "PINを保存"
+                            else -> "Save & Set PIN"
+                        },
+                        color = DarkSurface,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             } else {
                 PinBoxInput(
@@ -167,7 +275,17 @@ fun AppLockOverlay(
                             if (it == correctPin) {
                                 onUnlockSuccess()
                             } else {
-                                errorMessage = "Incorrect PIN. Try again."
+                                errorMessage = when (appLanguage) {
+                                    "bn" -> "ভুল পিন! আবার চেষ্টা করুন।"
+                                    "ar" -> "رمز خاطئ. حاول مرة أخرى."
+                                    "hi" -> "गलत पिन! फिर से प्रयास करें।"
+                                    "ur" -> "غلط پن! دوبارہ کوشش کریں۔"
+                                    "es" -> "PIN incorrecto. Inténtalo de nuevo."
+                                    "ru" -> "Неверный PIN. Попробуйте еще раз."
+                                    "zh" -> "PIN 码错误，请重试。"
+                                    "ja" -> "PINが正しくありません。再試行してください。"
+                                    else -> "Incorrect PIN. Try again."
+                                }
                             }
                         }
                     },

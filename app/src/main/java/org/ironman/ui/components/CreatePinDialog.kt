@@ -132,9 +132,29 @@ fun CreatePinDialog(
             Button(
                 onClick = {
                     if (newPinInput.length != 4) {
-                        errorMessage = "PIN must be 4 digits"
+                        errorMessage = when (appLanguage) {
+                            "bn" -> "পিন অবশ্যই ৪ সংখ্যার হতে হবে"
+                            "ar" -> "يجب أن يتكون الرمز من 4 أرقام"
+                            "hi" -> "पिन 4 अंकों का होना चाहिए"
+                            "ur" -> "پن 4 ہندسوں کا ہونا ضروری ہے"
+                            "es" -> "El PIN debe tener 4 dígitos"
+                            "ru" -> "PIN должен состоять из 4 цифр"
+                            "zh" -> "PIN 码必须为 4 位数字"
+                            "ja" -> "PINは4桁で指定してください"
+                            else -> "PIN must be 4 digits"
+                        }
                     } else if (newPinInput != confirmPinInput) {
-                        errorMessage = "PINs do not match"
+                        errorMessage = when (appLanguage) {
+                            "bn" -> "পিন দুটো মিলছে না"
+                            "ar" -> "الرمز غير متطابق"
+                            "hi" -> "पिन मेल नहीं खा रहे हैं"
+                            "ur" -> "پن میچ نہیں کر رہے"
+                            "es" -> "Los PIN no coinciden"
+                            "ru" -> "PIN-коды не совпадают"
+                            "zh" -> "两次输入的 PIN 码不一致"
+                            "ja" -> "PINが一致しません"
+                            else -> "PINs do not match"
+                        }
                     } else {
                         onPinCreated(newPinInput)
                     }
@@ -159,7 +179,21 @@ fun CreatePinDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "বাতিল"
+                        "ar" -> "إلغاء"
+                        "hi" -> "रद्द करें"
+                        "ur" -> "منسوخ کریں"
+                        "es" -> "Cancelar"
+                        "ru" -> "Отмена"
+                        "zh" -> "取消"
+                        "ja" -> "キャンセル"
+                        else -> "Cancel"
+                    }
+                )
+            }
         }
     )
 }

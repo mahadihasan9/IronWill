@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
@@ -159,6 +160,13 @@ fun SettingsScreen(
                         Text(
                             text = when (currentLanguage) {
                                 "bn" -> "ইচ্ছামত আলাদাভাবে আইকন ও নাম সিলেক্ট করুন (পিন প্রয়োজন)"
+                                "ar" -> "اختر أي أيقونة واسم بشكل مستقل (يلزم وجود رمز PIN)"
+                                "hi" -> "स्वतंत्र रूप से कोई भी आइकन और नाम चुनें (पिन आवश्यक)"
+                                "ur" -> "آزادانہ طور پر کوئی بھی آئیکن اور نام منتخب کریں (پن ضروری)"
+                                "es" -> "Elige cualquier icono y nombre independientemente (PIN requerido)"
+                                "ru" -> "Выберите любую иконку и название (требуется PIN)"
+                                "zh" -> "独立选择任意图标和名称（需要 PIN 码）"
+                                "ja" -> "アイコンと名前を独立して選択（PIN必須）"
                                 else -> "Pick any icon & name independently (PIN required)"
                             },
                             fontSize = 12.sp,
@@ -172,8 +180,14 @@ fun SettingsScreen(
                 // Section 1: Choose Icon (Full uncropped photo preview)
                 Text(
                     text = when (currentLanguage) {
-                        "bn" -> "১. আইকন বেছে নিন:"
-                        "hi" -> "1. आइकन चुनें:"
+                        "bn" -> "১. অ্যাপের আইকন বেছে নিন:"
+                        "ar" -> "١. اختر أيقونة التطبيق:"
+                        "hi" -> "1. ऐप का आइकन चुनें:"
+                        "ur" -> "1. ایپ آئیکن منتخب کریں:"
+                        "es" -> "1. Elige el Icono de la App:"
+                        "ru" -> "1. Выберите иконку приложения:"
+                        "zh" -> "1. 选择应用图标:"
+                        "ja" -> "1. アプリのアイコンを選択:"
                         else -> "1. Choose App Icon:"
                     },
                     fontSize = 13.sp,
@@ -224,7 +238,13 @@ fun SettingsScreen(
                 Text(
                     text = when (currentLanguage) {
                         "bn" -> "২. অ্যাপের নাম বেছে নিন:"
-                        "hi" -> "2. नाम चुनें:"
+                        "ar" -> "٢. اختر اسم التطبيق:"
+                        "hi" -> "2. ऐप का नाम चुनें:"
+                        "ur" -> "2. ایپ کا نام منتخب کریں:"
+                        "es" -> "2. Elige el Nombre de la App:"
+                        "ru" -> "2. Выберите название приложения:"
+                        "zh" -> "2. 选择应用名称:"
+                        "ja" -> "2. アプリの名前を選択:"
                         else -> "2. Choose App Name:"
                     },
                     fontSize = 13.sp,
@@ -275,7 +295,14 @@ fun SettingsScreen(
                 ) {
                     Text(
                         text = when (currentLanguage) {
-                            "bn" -> "রূপ পরিবর্তন করুন ($selectedName + Icon $chosenIconId)"
+                            "bn" -> "রূপ পরিবর্তন করুন ($selectedName + আইকন $chosenIconId)"
+                            "ar" -> "تطبيق التمويه ($selectedName + أيقونة $chosenIconId)"
+                            "hi" -> "भेष लागू करें ($selectedName + आइकन $chosenIconId)"
+                            "ur" -> "روپ تبدیل کریں ($selectedName + آئیکن $chosenIconId)"
+                            "es" -> "Aplicar Disfraz ($selectedName + Icono $chosenIconId)"
+                            "ru" -> "Применить маскировку ($selectedName + Иконка $chosenIconId)"
+                            "zh" -> "应用伪装 ($selectedName + 图标 $chosenIconId)"
+                            "ja" -> "偽装を適用 ($selectedName + アイコン $chosenIconId)"
                             else -> "Apply Disguise ($selectedName + Icon $chosenIconId)"
                         },
                         color = DarkSurface,
@@ -514,12 +541,12 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                val githubUrl = "https://github.com/mahadihasan9"
-
+                // Button 1: Developer Profile
+                val githubProfileUrl = "https://github.com/mahadihasan9"
                 OutlinedButton(
                     onClick = {
                         try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubProfileUrl))
                             context.startActivity(intent)
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -536,6 +563,126 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "github.com/mahadihasan9",
+                        color = PrimaryCyan,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Button 2: Source Code
+                val sourceCodeUrl = "https://github.com/mahadihasan9/IronWill"
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(sourceCodeUrl))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Code,
+                        contentDescription = "Source Code",
+                        tint = PrimaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "সোর্স কোড (Source Code)"
+                            "ar" -> "الشفرة المصدرية (Source Code)"
+                            "hi" -> "सोर्स कोड (Source Code)"
+                            "ur" -> "سورس کوڈ (Source Code)"
+                            "es" -> "Código Fuente (Source Code)"
+                            "ru" -> "Исходный код (Source Code)"
+                            "zh" -> "源代码 (Source Code)"
+                            "ja" -> "ソースコード (Source Code)"
+                            else -> "Source Code (GitHub)"
+                        },
+                        color = PrimaryCyan,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Button 3: Bug Report / Issues
+                val issueUrl = "https://github.com/mahadihasan9/IronWill/issues"
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BugReport,
+                        contentDescription = "Report Bug",
+                        tint = PrimaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "বাগ রিপোর্ট / ইস্যু জানান (Bug Report)"
+                            "ar" -> "الإبلاغ عن مشكلة (Report Issue)"
+                            "hi" -> "समस्या की रिपोर्ट करें (Bug Report)"
+                            "ur" -> "بگ رپورٹ (Report Issue)"
+                            "es" -> "Reportar un Error (Bug Report)"
+                            "ru" -> "Сообщить об ошибке (Report Bug)"
+                            "zh" -> "报告问题 (Report Bug)"
+                            "ja" -> "バグを報告 (Report Bug)"
+                            else -> "Report an Issue / Bug"
+                        },
+                        color = PrimaryCyan,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Button 4: Contribute
+                val contributeUrl = "https://github.com/mahadihasan9/IronWill"
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contributeUrl))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.OpenInNew,
+                        contentDescription = "Contribute",
+                        tint = PrimaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "কন্ট্রিবিউট করুন (Contribute)"
+                            "ar" -> "المساهمة في المشروع (Contribute)"
+                            "hi" -> "योगदान दें (Contribute)"
+                            "ur" -> "تعاون کریں (Contribute)"
+                            "es" -> "Contribuir al Proyecto (Contribute)"
+                            "ru" -> "Внести вклад (Contribute)"
+                            "zh" -> "参与贡献 (Contribute)"
+                            "ja" -> "プロジェクトに貢献 (Contribute)"
+                            else -> "Contribute to Project"
+                        },
                         color = PrimaryCyan,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
@@ -561,13 +708,33 @@ fun SettingsScreen(
     if (showPinDialogForIconChange) {
         PinVerificationDialog(
             correctPin = pinCode,
-            title = "Security PIN Required",
-            subtitle = "Enter PIN to change App Disguise:",
+            appLanguage = currentLanguage,
+            subtitle = when (currentLanguage) {
+                "bn" -> "রূপ পরিবর্তন করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لتغيير تمويه التطبيق:"
+                "hi" -> "ऐप का भेष बदलने के लिए पिन दर्ज करें:"
+                "ur" -> "ایپ کا روپ تبدیل کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para cambiar el disfraz:"
+                "ru" -> "Введите PIN для смены маскировки:"
+                "zh" -> "输入 PIN 码以更改应用伪装:"
+                "ja" -> "偽装を変更するにはPINを入力してください:"
+                else -> "Enter PIN to change App Disguise:"
+            },
             onDismiss = { showPinDialogForIconChange = false },
             onPinSuccess = {
                 showPinDialogForIconChange = false
                 viewModel.applyLauncherDisguise(context, chosenIconId, chosenNameIndex)
-                Toast.makeText(context, "App Disguise Updated", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, when (currentLanguage) {
+                    "bn" -> "অ্যাপ ডিসগাইজ আপডেট হয়েছে"
+                    "ar" -> "تم تحديث تمويه التطبيق"
+                    "hi" -> "ऐप का भेष अपडेट किया गया"
+                    "ur" -> "ایپ کی سیکیورٹی تبدیل ہو گئی"
+                    "es" -> "Disfraz de la App Actualizado"
+                    "ru" -> "Маскировка приложения обновлена"
+                    "zh" -> "应用伪装已更新"
+                    "ja" -> "アプリの偽装を更新しました"
+                    else -> "App Disguise Updated"
+                }, Toast.LENGTH_SHORT).show()
             }
         )
     }
@@ -587,8 +754,18 @@ fun SettingsScreen(
     if (showPinDialogForToggle) {
         PinVerificationDialog(
             correctPin = pinCode,
-            title = "Security PIN Required",
-            subtitle = "Enter PIN to change App Lock setting:",
+            appLanguage = currentLanguage,
+            subtitle = when (currentLanguage) {
+                "bn" -> "অ্যাপ লক সেটিং পরিবর্তন করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لتغيير إعداد قفل التطبيق:"
+                "hi" -> "ऐप लॉक सेटिंग बदलने के लिए पिन दर्ज करें:"
+                "ur" -> "ایپ لاک کی سیٹنگ تبدیل کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para cambiar el bloqueo de la app:"
+                "ru" -> "Введите PIN для изменения настроек блокировки:"
+                "zh" -> "输入 PIN 码以更改应用锁设置:"
+                "ja" -> "アプリのロック設定を変更するにはPINを入力してください:"
+                else -> "Enter PIN to change App Lock setting:"
+            },
             onDismiss = { showPinDialogForToggle = false },
             onPinSuccess = {
                 showPinDialogForToggle = false
@@ -600,6 +777,7 @@ fun SettingsScreen(
     if (showChangePinDialog) {
         ChangePinDialog(
             currentPin = pinCode,
+            appLanguage = currentLanguage,
             onDismiss = { showChangePinDialog = false },
             onSavePin = { newPin ->
                 viewModel.setPinCode(newPin)
@@ -612,6 +790,7 @@ fun SettingsScreen(
 @Composable
 fun ChangePinDialog(
     currentPin: String,
+    appLanguage: String = "en",
     onDismiss: () -> Unit,
     onSavePin: (newPin: String) -> Unit
 ) {
@@ -640,7 +819,31 @@ fun ChangePinDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = if (isOldPinNeeded) "Change 4-Digit PIN" else "Set 4-Digit PIN",
+                text = if (isOldPinNeeded) {
+                    when (appLanguage) {
+                        "bn" -> "৪-ডিজিট পিন পরিবর্তন করুন"
+                        "ar" -> "تغيير رمز الأمان المكون من 4 أرقام"
+                        "hi" -> "4-अंकीय पिन बदलें"
+                        "ur" -> "4 ہندسوں کا پن تبدیل کریں"
+                        "es" -> "Cambiar PIN de 4 Dígitos"
+                        "ru" -> "Изменить 4-значный PIN"
+                        "zh" -> "修改 4位数 PIN 码"
+                        "ja" -> "4桁のPINを変更"
+                        else -> "Change 4-Digit PIN"
+                    }
+                } else {
+                    when (appLanguage) {
+                        "bn" -> "৪-ডিজিট পিন সেট করুন"
+                        "ar" -> "تعيين رمز أمان من 4 أرقام"
+                        "hi" -> "4-अंकीय पिन सेट करें"
+                        "ur" -> "4 ہندسوں کا پن سیٹ کریں"
+                        "es" -> "Establecer PIN de 4 Dígitos"
+                        "ru" -> "Установите 4-значный PIN"
+                        "zh" -> "设置 4位数 PIN 码"
+                        "ja" -> "4桁のPINを設定"
+                        else -> "Set 4-Digit PIN"
+                    }
+                },
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary
             )
@@ -648,7 +851,21 @@ fun ChangePinDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (isOldPinNeeded) {
-                    Text("Enter Current PIN:", fontSize = 13.sp, color = TextMuted)
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "বর্তমান পিন লিখুন:"
+                            "ar" -> "أدخل الرمز الحالي:"
+                            "hi" -> "वर्तमान पिन दर्ज करें:"
+                            "ur" -> "موجودہ پن درج کریں:"
+                            "es" -> "Introduce el PIN Actual:"
+                            "ru" -> "Введите текущий PIN:"
+                            "zh" -> "输入当前 PIN 码:"
+                            "ja" -> "現在のPINを入力:"
+                            else -> "Enter Current PIN:"
+                        },
+                        fontSize = 13.sp,
+                        color = TextMuted
+                    )
                     Spacer(modifier = Modifier.height(6.dp))
                     PinBoxInput(
                         pinValue = oldPinInput,
@@ -664,7 +881,21 @@ fun ChangePinDialog(
                     Spacer(modifier = Modifier.height(14.dp))
                 }
 
-                Text("Enter New 4-Digit PIN:", fontSize = 13.sp, color = TextMuted)
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "নতুন ৪-ডিজিট পিন লিখুন:"
+                        "ar" -> "أدخل الرمز الجديد من 4 أرقام:"
+                        "hi" -> "नया 4-अंकीय पिन दर्ज करें:"
+                        "ur" -> "نیا 4 ہندسوں کا پن درج کریں:"
+                        "es" -> "Introduce el Nuevo PIN de 4 Dígitos:"
+                        "ru" -> "Введите новый 4-значный PIN:"
+                        "zh" -> "输入新 4位数 PIN 码:"
+                        "ja" -> "新しい4桁のPINを入力:"
+                        else -> "Enter New 4-Digit PIN:"
+                    },
+                    fontSize = 13.sp,
+                    color = TextMuted
+                )
                 Spacer(modifier = Modifier.height(6.dp))
                 PinBoxInput(
                     pinValue = newPinInput,
@@ -680,7 +911,21 @@ fun ChangePinDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Text("Confirm New 4-Digit PIN:", fontSize = 13.sp, color = TextMuted)
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "নতুন পিন নিশ্চিত করুন:"
+                        "ar" -> "تأكيد الرمز الجديد:"
+                        "hi" -> "नए पिन की पुष्टि करें:"
+                        "ur" -> "نئے پن کی تصدیق کریں:"
+                        "es" -> "Confirmar Nuevo PIN de 4 Dígitos:"
+                        "ru" -> "Подтвердите новый PIN:"
+                        "zh" -> "确认新 PIN 码:"
+                        "ja" -> "新しいPINを確認:"
+                        else -> "Confirm New 4-Digit PIN:"
+                    },
+                    fontSize = 13.sp,
+                    color = TextMuted
+                )
                 Spacer(modifier = Modifier.height(6.dp))
                 PinBoxInput(
                     pinValue = confirmPinInput,
@@ -701,22 +946,80 @@ fun ChangePinDialog(
             Button(
                 onClick = {
                     if (isOldPinNeeded && oldPinInput != currentPin) {
-                        errorMessage = "Current PIN is incorrect"
+                        errorMessage = when (appLanguage) {
+                            "bn" -> "বর্তমান পিনটি সঠিক নয়"
+                            "ar" -> "الرمز الحالي غير صحيح"
+                            "hi" -> "वर्तमान पिन गलत है"
+                            "ur" -> "موجودہ پن غلط ہے"
+                            "es" -> "El PIN actual es incorrecto"
+                            "ru" -> "Текущий PIN неверный"
+                            "zh" -> "当前 PIN 码不正确"
+                            "ja" -> "現在のPINが正しくありません"
+                            else -> "Current PIN is incorrect"
+                        }
                     } else if (newPinInput.length != 4) {
-                        errorMessage = "New PIN must be 4 digits"
+                        errorMessage = when (appLanguage) {
+                            "bn" -> "নতুন পিন অবশ্যই ৪ সংখ্যার হতে হবে"
+                            "ar" -> "يجب أن يتكون الرمز الجديد من 4 أرقام"
+                            "hi" -> "नया पिन 4 अंकों का होना चाहिए"
+                            "ur" -> "نیا پن 4 ہندسوں کا ہونا ضروری ہے"
+                            "es" -> "El nuevo PIN debe tener 4 dígitos"
+                            "ru" -> "Новый PIN должен состоять из 4 цифр"
+                            "zh" -> "新 PIN 码必须为 4 位数字"
+                            "ja" -> "新しいPINは4桁で指定してください"
+                            else -> "New PIN must be 4 digits"
+                        }
                     } else if (newPinInput != confirmPinInput) {
-                        errorMessage = "New PINs do not match"
+                        errorMessage = when (appLanguage) {
+                            "bn" -> "নতুন পিন দুটি মিলছে না"
+                            "ar" -> "الرمز الجديد غير متطابق"
+                            "hi" -> "नए पिन मेल नहीं खा रहे हैं"
+                            "ur" -> "نئے پن میچ نہیں کر رہے"
+                            "es" -> "Los nuevos PIN no coinciden"
+                            "ru" -> "Новые PIN-коды не совпадают"
+                            "zh" -> "两次输入的新 PIN 码不一致"
+                            "ja" -> "新しいPINが一致しません"
+                            else -> "New PINs do not match"
+                        }
                     } else {
                         onSavePin(newPinInput)
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
             ) {
-                Text("Save PIN", color = DarkSurface, fontWeight = FontWeight.Bold)
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "পিন সেভ করুন"
+                        "ar" -> "حفظ الرمز"
+                        "hi" -> "पिन सहेजें"
+                        "ur" -> "پن محفوظ کریں"
+                        "es" -> "Guardar PIN"
+                        "ru" -> "Сохранить PIN"
+                        "zh" -> "保存 PIN"
+                        "ja" -> "PINを保存"
+                        else -> "Save PIN"
+                    },
+                    color = DarkSurface,
+                    fontWeight = FontWeight.Bold
+                )
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "বাতিল"
+                        "ar" -> "إلغاء"
+                        "hi" -> "रद्द करें"
+                        "ur" -> "منسوخ کریں"
+                        "es" -> "Cancelar"
+                        "ru" -> "Отмена"
+                        "zh" -> "取消"
+                        "ja" -> "キャンセル"
+                        else -> "Cancel"
+                    }
+                )
+            }
         }
     )
 }

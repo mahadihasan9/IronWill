@@ -18,6 +18,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.ironman.ui.components.AppLockOverlay
 import org.ironman.ui.screens.HistoryScreen
@@ -94,6 +97,7 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
     if (appLockEnabled && pinCode.isNotBlank() && !isUnlockedBySession) {
         AppLockOverlay(
             correctPin = pinCode,
+            appLanguage = appLanguage,
             onSaveInitialPin = { newPin ->
                 mainViewModel.setPinCode(newPin)
             },
@@ -102,37 +106,37 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
             }
         )
     } else {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            bottomBar = {
-                NavigationBar(
-                    containerColor = DarkSurface
-                ) {
-                    NavigationTab.entries.forEachIndexed { index, tab ->
-                        NavigationBarItem(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            icon = { Icon(imageVector = tab.icon, contentDescription = tab.getTitle(appLanguage)) },
-                            label = { Text(text = tab.getTitle(appLanguage)) },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = PrimaryCyan,
-                                selectedTextColor = PrimaryCyan,
-                                unselectedIconColor = TextMuted,
-                                unselectedTextColor = TextMuted,
-                                indicatorColor = DarkSurface
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                bottomBar = {
+                    NavigationBar(
+                        containerColor = DarkSurface
+                    ) {
+                        NavigationTab.entries.forEachIndexed { index, tab ->
+                            NavigationBarItem(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                icon = { Icon(imageVector = tab.icon, contentDescription = tab.getTitle(appLanguage)) },
+                                label = { Text(text = tab.getTitle(appLanguage)) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = PrimaryCyan,
+                                    selectedTextColor = PrimaryCyan,
+                                    unselectedIconColor = TextMuted,
+                                    unselectedTextColor = TextMuted,
+                                    indicatorColor = DarkSurface
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
-        ) { innerPadding ->
-            val modifier = Modifier.padding(innerPadding)
-            when (selectedTab) {
-                0 -> HomeScreen(viewModel = mainViewModel, modifier = modifier)
-                1 -> HistoryScreen(viewModel = mainViewModel, modifier = modifier)
-                2 -> StatsScreen(viewModel = mainViewModel, modifier = modifier)
-                3 -> SettingsScreen(viewModel = mainViewModel, modifier = modifier)
+            ) { innerPadding ->
+                val modifier = Modifier.padding(innerPadding)
+                when (selectedTab) {
+                    0 -> HomeScreen(viewModel = mainViewModel, modifier = modifier)
+                    1 -> HistoryScreen(viewModel = mainViewModel, modifier = modifier)
+                    2 -> StatsScreen(viewModel = mainViewModel, modifier = modifier)
+                    3 -> SettingsScreen(viewModel = mainViewModel, modifier = modifier)
+                }
             }
         }
-    }
 }

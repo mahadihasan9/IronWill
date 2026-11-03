@@ -27,8 +27,9 @@ import org.ironman.ui.theme.TextPrimary
 @Composable
 fun PinVerificationDialog(
     correctPin: String,
-    title: String = "Security PIN Required",
-    subtitle: String = "Enter your 4-digit PIN to proceed:",
+    title: String = "",
+    subtitle: String = "",
+    appLanguage: String = "en",
     onDismiss: () -> Unit,
     onPinSuccess: () -> Unit
 ) {
@@ -38,6 +39,30 @@ fun PinVerificationDialog(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val displayTitle = if (title.isNotBlank()) title else when (appLanguage) {
+        "bn" -> "সিকিউরিটি পিন দিন"
+        "ar" -> "رمز الأمان مطلوب"
+        "hi" -> "सुरक्षा पिन आवश्यक"
+        "ur" -> "سیکیورٹی پن درکار ہے"
+        "es" -> "PIN de Seguridad Requerido"
+        "ru" -> "Требуется PIN-код"
+        "zh" -> "需要安全 PIN 码"
+        "ja" -> "セキュリティPINが必要です"
+        else -> "Security PIN Required"
+    }
+
+    val displaySubtitle = if (subtitle.isNotBlank()) subtitle else when (appLanguage) {
+        "bn" -> "সামনে এগোতে ৪-ডিজিট পিন লিখুন:"
+        "ar" -> "أدخل رمز الأمان من 4 أرقام للمتابعة:"
+        "hi" -> "आगे बढ़ने के लिए 4-अंकीय पिन दर्ज करें:"
+        "ur" -> "آگے بڑھنے کے لیے 4 ہندسوں کا پن درج کریں:"
+        "es" -> "Introduce tu PIN de 4 dígitos para continuar:"
+        "ru" -> "Введите 4-значный PIN для продолжения:"
+        "zh" -> "请输入 4位数 PIN 码以继续:"
+        "ja" -> "続行するには4桁のPINを入力してください:"
+        else -> "Enter your 4-digit PIN to proceed:"
+    }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         keyboardController?.show()
@@ -46,12 +71,12 @@ fun PinVerificationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = title, color = TextPrimary, fontWeight = FontWeight.Bold)
+            Text(text = displayTitle, color = TextPrimary, fontWeight = FontWeight.Bold)
         },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = subtitle,
+                    text = displaySubtitle,
                     color = TextMuted
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -74,7 +99,20 @@ fun PinVerificationDialog(
 
                 if (isError) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = "Incorrect PIN. Try again.", color = AccentRed)
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "ভুল পিন! আবার চেষ্টা করুন।"
+                            "ar" -> "رمز خاطئ. حاول مرة أخرى."
+                            "hi" -> "गलत पिन! फिर से प्रयास करें।"
+                            "ur" -> "غلط پن! دوبارہ کوشش کریں۔"
+                            "es" -> "PIN incorrecto. Inténtalo de nuevo."
+                            "ru" -> "Неверный PIN. Попробуйте еще раз."
+                            "zh" -> "PIN 码错误，请重试。"
+                            "ja" -> "PINが正しくありません。再試行してください。"
+                            else -> "Incorrect PIN. Try again."
+                        },
+                        color = AccentRed
+                    )
                 }
             }
         },
@@ -89,12 +127,37 @@ fun PinVerificationDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
             ) {
-                Text("Confirm", color = TextPrimary)
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "নিশ্চিত করুন"
+                        "ar" -> "تأكيد"
+                        "hi" -> "पुष्टि करें"
+                        "ur" -> "تصدیق کریں"
+                        "es" -> "Confirmar"
+                        "ru" -> "Подтвердить"
+                        "zh" -> "确认"
+                        "ja" -> "確認"
+                        else -> "Confirm"
+                    },
+                    color = TextPrimary
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "বাতিল"
+                        "ar" -> "إلغاء"
+                        "hi" -> "रद्द करें"
+                        "ur" -> "منسوخ کریں"
+                        "es" -> "Cancelar"
+                        "ru" -> "Отмена"
+                        "zh" -> "取消"
+                        "ja" -> "キャンセル"
+                        else -> "Cancel"
+                    }
+                )
             }
         }
     )
