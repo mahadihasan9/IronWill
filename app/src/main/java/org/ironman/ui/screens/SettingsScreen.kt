@@ -61,9 +61,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.SystemUpdate
 import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinBoxInput
 import org.ironman.ui.components.PinVerificationDialog
+import org.ironman.ui.theme.AccentGold
 import org.ironman.ui.theme.AccentRed
 import org.ironman.ui.theme.DarkSurface
 import org.ironman.ui.theme.DarkSurfaceVariant
@@ -73,6 +75,7 @@ import org.ironman.ui.theme.TextPrimary
 import org.ironman.ui.theme.TextSecondary
 import org.ironman.ui.viewmodel.MainViewModel
 import org.ironman.utils.LauncherAliasManager
+import org.ironman.utils.UpdateStatus
 
 @Composable
 fun SettingsScreen(
@@ -83,6 +86,11 @@ fun SettingsScreen(
     val currentLanguage by viewModel.appLanguage.collectAsState()
     val pinCode by viewModel.pinCode.collectAsState()
     val appLockEnabled by viewModel.appLockEnabled.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.checkForUpdates()
+    }
 
     val currentIconId by viewModel.selectedIconId.collectAsState()
     val currentNameIndex by viewModel.selectedNameIndex.collectAsState()
@@ -482,6 +490,208 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // App Updates Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SystemUpdate,
+                            contentDescription = "App Update",
+                            tint = PrimaryCyan
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = when (currentLanguage) {
+                                    "bn" -> "অ্যাপ আপডেট"
+                                    "ar" -> "تحديثات التطبيق"
+                                    "hi" -> "ऐप अपडेट"
+                                    "ur" -> "ایپ اپڈیٹس"
+                                    "es" -> "Actualizaciones de App"
+                                    "ru" -> "Обновления приложения"
+                                    "zh" -> "应用更新"
+                                    "ja" -> "アプリの更新"
+                                    else -> "App Updates"
+                                },
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = when (currentLanguage) {
+                                    "bn" -> "বর্তমান সংস্করণ: v3.1 (Build 4)"
+                                    "ar" -> "الإصدار الحالي: v3.1 (Build 4)"
+                                    "hi" -> "वर्तमान संस्करण: v3.1 (Build 4)"
+                                    "ur" -> "موجودہ ورژن: v3.1 (Build 4)"
+                                    "es" -> "Versión Actual: v3.1 (Build 4)"
+                                    "ru" -> "Текущая версия: v3.1 (Build 4)"
+                                    "zh" -> "当前版本: v3.1 (Build 4)"
+                                    "ja" -> "現在のバージョン: v3.1 (Build 4)"
+                                    else -> "Current Version: v3.1 (Build 4)"
+                                },
+                                fontSize = 12.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+
+                    OutlinedButton(
+                        onClick = { viewModel.checkForUpdates() },
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "আপডেট চেক করুন"
+                                "ar" -> "التحقق من التحديث"
+                                "hi" -> "अपडेट जांचें"
+                                "ur" -> "اپڈیٹ چیک کریں"
+                                "es" -> "Buscar Actualización"
+                                "ru" -> "Проверить"
+                                "zh" -> "检查更新"
+                                "ja" -> "更新を確認"
+                                else -> "Check Update"
+                            },
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                when (val status = updateStatus) {
+                    is UpdateStatus.NewVersionAvailable -> {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    try {
+                                        val targetUrl = status.releaseUrl.ifBlank { "https://github.com/mahadihasan9/IronWill/releases" }
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl))
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(containerColor = PrimaryCyan.copy(alpha = 0.15f)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = when (currentLanguage) {
+                                            "bn" -> "নতুন সংস্করণ পাওয়া গেছে (${status.version})!"
+                                            "ar" -> "يتوفر إصدار جديد (${status.version})!"
+                                            "hi" -> "नया संस्करण उपलब्ध है (${status.version})!"
+                                            "ur" -> "نیا ورژن دستیاب ہے (${status.version})!"
+                                            "es" -> "¡Nueva versión disponible (${status.version})!"
+                                            "ru" -> "Доступна новая версия (${status.version})!"
+                                            "zh" -> "有新版本可用 (${status.version})!"
+                                            "ja" -> "新しいバージョンが利用可能です (${status.version})!"
+                                            else -> "New version available (${status.version})!"
+                                        },
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryCyan
+                                    )
+                                    Text(
+                                        text = when (currentLanguage) {
+                                            "bn" -> "GitHub releases থেকে ডাউনলোড করতে ট্যাপ করুন"
+                                            "ar" -> "انقر للتنزيل من الإصدارات"
+                                            "hi" -> "डाउनलोड करने के लिए टैप करें"
+                                            "ur" -> "ڈاؤن لوڈ کرنے کے لیے ٹیپ کریں"
+                                            "es" -> "Toca para descargar desde GitHub"
+                                            "ru" -> "Нажмите для скачивания с GitHub"
+                                            "zh" -> "点击前往 GitHub 下载"
+                                            "ja" -> "GitHubからダウンロードするにはタップ"
+                                            else -> "Tap to download from GitHub releases"
+                                        },
+                                        fontSize = 11.sp,
+                                        color = TextSecondary
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.OpenInNew,
+                                    contentDescription = "Update",
+                                    tint = PrimaryCyan
+                                )
+                            }
+                        }
+                    }
+                    is UpdateStatus.LatestVersion -> {
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "আপনি সর্বশেষ সংস্করণ (v${status.version}) ব্যবহার করছেন।"
+                                "ar" -> "أنت تستخدم أحدث إصدار (v${status.version})."
+                                "hi" -> "आप नवीनतम संस्करण (v${status.version}) का उपयोग कर रहे हैं।"
+                                "ur" -> "آپ تازہ ترین ورژن (v${status.version}) استعمال کر رہے ہیں۔"
+                                "es" -> "Estás utilizando la última versión (v${status.version})."
+                                "ru" -> "Вы используете последнюю версию (v${status.version})."
+                                "zh" -> "您正在使用最新版本 (v${status.version})。"
+                                "ja" -> "最新バージョン (v${status.version}) を使用しています。"
+                                else -> "You are using the latest version (v${status.version})."
+                            },
+                            fontSize = 12.sp,
+                            color = AccentGold,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    is UpdateStatus.Checking -> {
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "নতুন আপডেট চেক করা হচ্ছে..."
+                                "ar" -> "جاري التحقق من التحديثات..."
+                                "hi" -> "अपडेट की जांच की जा रही है..."
+                                "ur" -> "اپڈیٹس چیک کی جا رہی ہیں..."
+                                "es" -> "Comprobando actualizaciones..."
+                                "ru" -> "Проверка обновлений..."
+                                "zh" -> "正在检查更新..."
+                                "ja" -> "更新を確認中..."
+                                else -> "Checking for updates..."
+                            },
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                    is UpdateStatus.Error -> {
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "আপডেট চেক করা সম্ভব হয়নি"
+                                "ar" -> "تعذر التحقق من التحديثات"
+                                "hi" -> "अपडेट की जांच नहीं की जा सकी"
+                                "ur" -> "اپڈیٹ چیک نہیں ہو سکی"
+                                "es" -> "No se pudo comprobar la actualización"
+                                "ru" -> "Не удалось проверить обновления"
+                                "zh" -> "无法检查更新"
+                                "ja" -> "更新を確認できませんでした"
+                                else -> "Could not check for update"
+                            },
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                    else -> {}
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // About Developer / GitHub Card
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -541,7 +751,47 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Button 1: Developer Profile
+                // Button 0: Website
+                val wbsiteURL = "https://mahdi-bin-iqbal.netlify.app"
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wbsiteURL))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = "Website",
+                        tint = PrimaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "ওয়েবসাইট (Website)"
+                            "ar" -> "الموقع الإلكتروني (Website)"
+                            "hi" -> "वेबसाइट (Website)"
+                            "ur" -> "ویب سائٹ (Website)"
+                            "es" -> "Sitio Web (Website)"
+                            "ru" -> "Веб-сайт (Website)"
+                            "zh" -> "网站 (Website)"
+                            "ja" -> "ウェブサイト (Website)"
+                            else -> "Website"
+                        },
+                        color = PrimaryCyan,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Button 1: GitHub Profile
                 val githubProfileUrl = "https://github.com/mahadihasan9"
                 OutlinedButton(
                     onClick = {

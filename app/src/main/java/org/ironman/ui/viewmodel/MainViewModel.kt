@@ -19,6 +19,8 @@ import org.ironman.data.StreakHistory
 import org.ironman.data.StreakRepository
 import org.ironman.data.StreakTimer
 import org.ironman.utils.LauncherAliasManager
+import org.ironman.utils.UpdateChecker
+import org.ironman.utils.UpdateStatus
 
 data class StreakTime(
     val days: Long = 0,
@@ -129,6 +131,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentQuote = MutableStateFlow(QuotesProvider.getRandomQuote())
     val currentQuote: StateFlow<Quote> = _currentQuote.asStateFlow()
 
+    private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
+    val updateStatus: StateFlow<UpdateStatus> = _updateStatus.asStateFlow()
+
     init {
         // Ticking timer loop
         viewModelScope.launch {
@@ -205,8 +210,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = StreakStats()
     )
 
-    fun refreshQuote() {
-        _currentQuote.value = QuotesProvider.getRandomQuoteDifferentFrom(_currentQuote.value)
+    fun checkForUpdates() {
+        viewModelScope.launch {
+            _updateStatus.value = UpdateStatus.Checking
+            _updateStatus.value = UpdateChecker.checkForUpdates()
+        }
     }
 
     fun selectTimer(timerId: String) {
@@ -234,6 +242,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun refreshQuote() {
+        _currentQuote.value = QuotesProvider.getRandomQuoteDifferentFrom(_currentQuote.value)
+    }
+
     fun startStreak(startTimestamp: Long) {
         viewModelScope.launch {
             val currentTimerId = activeTimer.value.id
@@ -254,6 +266,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val currentTimerId = activeTimer.value.id
             repository.saveStartTimestamp(currentTimerId, newTimestamp)
+        }
+    }
+
+    fun updateTargetGoal(days: Int) {
+        viewModelScope.launch {
+            repository.setTargetGoalDays(days)
         }
     }
 

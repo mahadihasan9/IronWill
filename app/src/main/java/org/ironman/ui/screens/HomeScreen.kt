@@ -78,6 +78,13 @@ import org.ironman.ui.theme.TextSecondary
 import org.ironman.ui.viewmodel.MainViewModel
 import java.util.Locale
 
+enum class PinActionType {
+    START_COUNTER,
+    RESET_COUNTER,
+    ADD_TIMER,
+    DELETE_TIMER
+}
+
 @Composable
 fun HomeScreen(
     viewModel: MainViewModel,
@@ -95,7 +102,7 @@ fun HomeScreen(
 
     val rankInfo = remember(streakTime.days, appLanguage) { viewModel.getRankInfo(streakTime.days) }
 
-    // Quote refreshes on navigation or manual tap (no auto-loop)
+    // Quote refreshes on navigation or manual tap
     var quoteRefreshTrigger by remember { mutableIntStateOf(0) }
     LaunchedEffect(quoteRefreshTrigger) {
         viewModel.refreshQuote()
@@ -108,9 +115,9 @@ fun HomeScreen(
 
     var showAddTimerDialog by remember { mutableStateOf(false) }
     var timerToDeleteId by remember { mutableStateOf<String?>(null) }
+    var pendingDeleteTimerId by remember { mutableStateOf<String?>(null) }
 
-    // Track whether the pin creation / verification is for starting counter or resetting counter
-    var isPinActionForStart by remember { mutableStateOf(false) }
+    var currentPinAction by remember { mutableStateOf(PinActionType.START_COUNTER) }
 
     val scrollState = rememberScrollState()
 
@@ -310,7 +317,7 @@ fun HomeScreen(
         if (!isTracking) {
             Button(
                 onClick = {
-                    isPinActionForStart = true
+                    currentPinAction = PinActionType.START_COUNTER
                     if (pinCode.isBlank()) {
                         showCreatePinDialog = true
                     } else {
@@ -349,7 +356,7 @@ fun HomeScreen(
         } else {
             Button(
                 onClick = {
-                    isPinActionForStart = false
+                    currentPinAction = PinActionType.RESET_COUNTER
                     if (pinCode.isBlank()) {
                         showCreatePinDialog = true
                     } else {
@@ -478,54 +485,59 @@ fun HomeScreen(
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Speed,
-                            contentDescription = "Multi Counters",
-                            tint = PrimaryCyan
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.Default.Speed,
+                        contentDescription = "Multi Counters",
+                        tint = PrimaryCyan,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
                         Text(
                             text = when (appLanguage) {
-                                "bn" -> "টাইমার ও কাউন্টার সমূহ (${timersList.size}/30)"
+                                "bn" -> "মাল্টি-কাউন্টার সমূূহ (${timersList.size}/30)"
                                 "ar" -> "العدادات المتعددة (${timersList.size}/30)"
-                                "hi" -> "टाइमर और मल्टी-काउंटर (${timersList.size}/30)"
-                                "ur" -> "ٹائمرز اور ملٹی کاؤنٹرز (${timersList.size}/30)"
-                                "es" -> "Temporizadores Múltiples (${timersList.size}/30)"
+                                "hi" -> "मल्टी-काउंटर लिस्ट (${timersList.size}/30)"
+                                "ur" -> "ملٹی کاؤنٹرز (${timersList.size}/30)"
+                                "es" -> "Contadores Múltiples (${timersList.size}/30)"
                                 "ru" -> "Мульти-счетчики (${timersList.size}/30)"
                                 "zh" -> "多计时器 (${timersList.size}/30)"
                                 "ja" -> "マルチタイマー (${timersList.size}/30)"
                                 else -> "Timers & Multi-Counters (${timersList.size}/30)"
                             },
-                            fontSize = 15.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary
                         )
-                    }
-
-                    if (timersList.size < 30) {
-                        IconButton(onClick = { showAddTimerDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add Timer",
-                                tint = PrimaryCyan
-                            )
-                        }
+                        Text(
+                            text = when (appLanguage) {
+                                "bn" -> "কাউন্টার পরিবর্তন বা নতুন টাইমার যোগ করুন"
+                                "ar" -> "اختر العداد أو أضف عداداً جديداً"
+                                "hi" -> "काउंटर बदलें या नया टाइमर जोड़ें"
+                                "ur" -> "کاؤنٹر تبدیل کریں یا نیا ٹائمر شامل کریں"
+                                "es" -> "Cambia de contador o añade uno nuevo"
+                                "ru" -> "Переключите счетчик или добавьте новый"
+                                "zh" -> "切换当前计时器或添加新计时器"
+                                "ja" -> "タイマーを切り替えるか新規作成"
+                                else -> "Select active counter or add a new timer"
+                            },
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Scrollable Timer Cards
+                // Horizontal list of Timers
                 val timersScrollState = rememberScrollState()
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(timersScrollState),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     timersList.forEach { timer ->
                         val isSelected = timer.id == activeTimer.id
@@ -548,25 +560,26 @@ fun HomeScreen(
                                 .border(
                                     width = if (isSelected) 2.dp else 1.dp,
                                     color = if (isSelected) PrimaryCyan else CardBorder,
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(14.dp)
                                 )
                                 .clickable { viewModel.selectTimer(timer.id) },
                             colors = CardDefaults.cardColors(
-                                containerColor = if (isSelected) PrimaryCyan.copy(alpha = 0.15f) else DarkSurfaceVariant
+                                containerColor = if (isSelected) PrimaryCyan.copy(alpha = 0.18f) else DarkSurfaceVariant
                             ),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(14.dp)
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
                                     Text(
                                         text = displayName,
-                                        fontSize = 14.sp,
+                                        fontSize = 15.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                         color = if (isSelected) PrimaryCyan else TextPrimary
                                     )
+                                    Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = if (timer.isTracking) {
                                             val days = ((System.currentTimeMillis() - timer.startTimestamp).coerceAtLeast(0)) / (1000 * 60 * 60 * 24)
@@ -594,57 +607,80 @@ fun HomeScreen(
                                                 else -> "Inactive"
                                             }
                                         },
-                                        fontSize = 11.sp,
+                                        fontSize = 12.sp,
                                         color = if (timer.isTracking) AccentGold else TextMuted
                                     )
                                 }
 
                                 if (timer.id != "main") {
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
                                     IconButton(
-                                        onClick = { timerToDeleteId = timer.id },
-                                        modifier = Modifier.size(24.dp)
+                                        onClick = {
+                                            pendingDeleteTimerId = timer.id
+                                            currentPinAction = PinActionType.DELETE_TIMER
+                                            if (pinCode.isBlank()) {
+                                                showCreatePinDialog = true
+                                            } else {
+                                                showPinDialog = true
+                                            }
+                                        },
+                                        modifier = Modifier.size(28.dp)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
                                             contentDescription = "Delete",
-                                            tint = AccentRed.copy(alpha = 0.8f),
-                                            modifier = Modifier.size(18.dp)
+                                            tint = AccentRed.copy(alpha = 0.85f),
+                                            modifier = Modifier.size(20.dp)
                                         )
                                     }
                                 }
                             }
                         }
                     }
+                }
 
-                    if (timersList.size < 30) {
-                        OutlinedButton(
-                            onClick = { showAddTimerDialog = true },
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                tint = PrimaryCyan,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = when (appLanguage) {
-                                    "bn" -> "+ নতুন কাউন্টার"
-                                    "ar" -> "+ عداد جديد"
-                                    "hi" -> "+ नया काउंटर"
-                                    "ur" -> "+ نیا کاؤنٹر"
-                                    "es" -> "+ Nuevo Contador"
-                                    "ru" -> "+ Новый счетчик"
-                                    "zh" -> "+ 新计时器"
-                                    "ja" -> "+ 新規タイマー"
-                                    else -> "+ Add Counter"
-                                },
-                                color = PrimaryCyan,
-                                fontSize = 13.sp
-                            )
-                        }
+                if (timersList.size < 30) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Prominent Add Counter Button matching Main Counter Button style
+                    Button(
+                        onClick = {
+                            currentPinAction = PinActionType.ADD_TIMER
+                            if (pinCode.isBlank()) {
+                                showCreatePinDialog = true
+                            } else {
+                                showPinDialog = true
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Counter",
+                            tint = DarkSurface,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = when (appLanguage) {
+                                "bn" -> "নতুন কাউন্টার তৈরি করুন"
+                                "ar" -> "إضافة عداد جديد"
+                                "hi" -> "नया काउंटर बनाएं"
+                                "ur" -> "نیا کاؤنٹر بنائیں"
+                                "es" -> "Crear Nuevo Contador"
+                                "ru" -> "Создать новый счетчик"
+                                "zh" -> "新建计时器"
+                                "ja" -> "新規タイマーを追加"
+                                else -> "Create New Counter"
+                            },
+                            color = DarkSurface,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
                     }
                 }
             }
@@ -658,26 +694,89 @@ fun HomeScreen(
             onPinCreated = { newPin ->
                 viewModel.setPinCode(newPin)
                 showCreatePinDialog = false
-                if (isPinActionForStart) {
-                    showStartDateTimeDialog = true
-                } else {
-                    showRelapseDialog = true
+                when (currentPinAction) {
+                    PinActionType.START_COUNTER -> showStartDateTimeDialog = true
+                    PinActionType.RESET_COUNTER -> showRelapseDialog = true
+                    PinActionType.ADD_TIMER -> showAddTimerDialog = true
+                    PinActionType.DELETE_TIMER -> {
+                        pendingDeleteTimerId?.let { targetId ->
+                            timerToDeleteId = targetId
+                            pendingDeleteTimerId = null
+                        }
+                    }
                 }
             }
         )
     }
 
     if (showPinDialog) {
+        val dialogSubtitle = when (currentPinAction) {
+            PinActionType.START_COUNTER -> when (appLanguage) {
+                "bn" -> "কাউন্টার শুরু করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لبدء العداد:"
+                "hi" -> "काउंटर शुरू करने के लिए पिन दर्ज करें:"
+                "ur" -> "کاؤنٹر شروع کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para iniciar el contador:"
+                "ru" -> "Введите PIN для запуска счетчика:"
+                "zh" -> "输入 PIN 码以开始计时器:"
+                "ja" -> "カウンターを開始するにはPINを入力してください:"
+                else -> "Enter PIN to start counter:"
+            }
+            PinActionType.RESET_COUNTER -> when (appLanguage) {
+                "bn" -> "কাউন্টার রিসেট করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لإعادة ضبط العداد:"
+                "hi" -> "काउंटर रीसेट करने के लिए पिन दर्ज करें:"
+                "ur" -> "کاؤنٹر ری سیٹ کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para reiniciar el contador:"
+                "ru" -> "Введите PIN для сброса счетчика:"
+                "zh" -> "输入 PIN 码以重置计时器:"
+                "ja" -> "リセットするにはPINを入力してください:"
+                else -> "Enter PIN to reset counter:"
+            }
+            PinActionType.ADD_TIMER -> when (appLanguage) {
+                "bn" -> "নতুন টাইমার যোগ করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لإضافة عداد جديد:"
+                "hi" -> "नया टाइमर जोड़ने के लिए पिन दर्ज करें:"
+                "ur" -> "نیا ٹائمر شامل کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para añadir nuevo contador:"
+                "ru" -> "Введите PIN для добавления счетчика:"
+                "zh" -> "输入 PIN 码以添加新计时器:"
+                "ja" -> "新しいタイマーを追加するにはPINを入力してください:"
+                else -> "Enter PIN to add new counter:"
+            }
+            PinActionType.DELETE_TIMER -> when (appLanguage) {
+                "bn" -> "কাউন্টার ডিলিট করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لحذف العداد:"
+                "hi" -> "काउंटर हटाने के लिए पिन दर्ज करें:"
+                "ur" -> "کاؤنٹر حذف کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para eliminar el contador:"
+                "ru" -> "Введите PIN для удаления счетчика:"
+                "zh" -> "输入 PIN 码以删除计时器:"
+                "ja" -> "タイマーを削除するにはPINを入力してください:"
+                else -> "Enter PIN to delete counter:"
+            }
+        }
+
         PinVerificationDialog(
             correctPin = pinCode,
             appLanguage = appLanguage,
-            onDismiss = { showPinDialog = false },
+            subtitle = dialogSubtitle,
+            onDismiss = {
+                showPinDialog = false
+                pendingDeleteTimerId = null
+            },
             onPinSuccess = {
                 showPinDialog = false
-                if (isPinActionForStart) {
-                    showStartDateTimeDialog = true
-                } else {
-                    showRelapseDialog = true
+                when (currentPinAction) {
+                    PinActionType.START_COUNTER -> showStartDateTimeDialog = true
+                    PinActionType.RESET_COUNTER -> showRelapseDialog = true
+                    PinActionType.ADD_TIMER -> showAddTimerDialog = true
+                    PinActionType.DELETE_TIMER -> {
+                        pendingDeleteTimerId?.let { targetId ->
+                            timerToDeleteId = targetId
+                            pendingDeleteTimerId = null
+                        }
+                    }
                 }
             }
         )
@@ -831,7 +930,7 @@ fun HomeScreen(
                         text = when (appLanguage) {
                             "bn" -> "বাতিল"
                             "ar" -> "إلغاء"
-                            "hi" -> "রद्द करें"
+                            "hi" -> "রদ্দ करें"
                             "ur" -> "منسوخ کریں"
                             "es" -> "Cancelar"
                             "ru" -> "Отмена"

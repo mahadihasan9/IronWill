@@ -40,7 +40,6 @@ class StreakRepository(private val context: Context) {
     val timersListFlow: Flow<List<StreakTimer>> = context.dataStore.data.map { preferences ->
         val rawJson = preferences[KEY_TIMERS_JSON] ?: ""
         if (rawJson.isBlank()) {
-            // Migrate existing single-timer data or initialize default Main Timer
             val mainStart = preferences[KEY_START_TIMESTAMP] ?: System.currentTimeMillis()
             val mainTracking = preferences[KEY_TRACKING_STATUS] ?: false
             val mainHistoryRaw = preferences[KEY_HISTORY_DATA] ?: ""
@@ -141,20 +140,6 @@ class StreakRepository(private val context: Context) {
         }
     }
 
-    suspend fun saveStartTimestamp(timerId: String, timestamp: Long) {
-        context.dataStore.edit { preferences ->
-            val currentTimers = getOrCreateTimersList(preferences).map { timer ->
-                if (timer.id == timerId) {
-                    timer.copy(startTimestamp = timestamp)
-                } else timer
-            }
-            preferences[KEY_TIMERS_JSON] = serializeTimersList(currentTimers)
-            if (timerId == "main") {
-                preferences[KEY_START_TIMESTAMP] = timestamp
-            }
-        }
-    }
-
     suspend fun resetStreak(timerId: String, note: String = "") {
         val now = System.currentTimeMillis()
         context.dataStore.edit { preferences ->
@@ -226,6 +211,26 @@ class StreakRepository(private val context: Context) {
     suspend fun setLanguage(lang: String) {
         context.dataStore.edit { preferences ->
             preferences[KEY_LANGUAGE] = lang
+        }
+    }
+
+    suspend fun setTargetGoalDays(days: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[KEY_TARGET_GOAL] = days.toLong()
+        }
+    }
+
+    suspend fun saveStartTimestamp(timerId: String, timestamp: Long) {
+        context.dataStore.edit { preferences ->
+            val currentTimers = getOrCreateTimersList(preferences).map { timer ->
+                if (timer.id == timerId) {
+                    timer.copy(startTimestamp = timestamp)
+                } else timer
+            }
+            preferences[KEY_TIMERS_JSON] = serializeTimersList(currentTimers)
+            if (timerId == "main") {
+                preferences[KEY_START_TIMESTAMP] = timestamp
+            }
         }
     }
 
