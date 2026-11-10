@@ -87,11 +87,11 @@ fun StatsScreen(
             Milestone(3, "3 Days Goal", "৩ দিনের গোল", "هدف 3 أيام", "3 दिनों का लक्ष्य", "3 دن کا ہدف", "Meta de 3 Días", "Цель: 3 дня", "3 天目标", "3日間の目標"),
             Milestone(4, "4 Days Goal", "৪ দিনের গোল", "هدف 4 أيام", "4 दिनों का लक्ष्य", "4 دن का हدف", "Meta de 4 Días", "Цель: 4 дня", "4 天目标", "4日間の目標"),
             Milestone(5, "5 Days Goal", "৫ দিনের গোল", "هدف 5 أيام", "5 दिनों का लक्ष्य", "5 دن کا ہدف", "Meta de 5 Días", "Цель: 5 дней", "5 天目标", "5日間の目標"),
-            Milestone(7, "1 Week Goal", "১ সপ্তাহের গোল", "هدف أسبوع", "1 सप्ताह का लक्ष्य", "1 ہفتے کا ہدف", "Meta de 1 Semana", "Цель: 1 неделя", "1 周目标", "1週間の目標"),
+            Milestone(7, "1 Week Goal", "১ সপ্তাহের গোল", "هدف أسبوع", "1 सप्ताह का लक्ष्य", "1 हफ्ते का हدف", "Meta de 1 Semana", "Цель: 1 неделя", "1 周目标", "1週間の目標"),
             Milestone(14, "2 Weeks Goal", "২ সপ্তাহের গোল", "هدف أسبوعين", "2 सप्ताह का लक्ष्य", "2 ہفتے کا ہدف", "Meta de 2 Semanas", "Цель: 2 недели", "2 周目标", "2週間の目標"),
             Milestone(30, "1 Month Goal", "১ মাসের গোল", "هدف شهر", "1 महीने का लक्ष्य", "1 ماہ کا ہدف", "Meta de 1 Mes", "Цель: 1 месяц", "1 个月目标", "1ヶ月の目標"),
             Milestone(60, "60 Days Goal", "৬০ দিনের গোল", "هدف 60 يوم", "60 दिनों का लक्ष्य", "60 دن کا ہدف", "Meta de 60 Días", "Цель: 60 дней", "60 天目标", "60日間の目標"),
-            Milestone(90, "90 Days Goal", "৯০ দিনের গোল", "هدف 90 يوم", "90 दिनों का लक्ष्य", "90 دن کا ہدف", "Meta de 90 Días", "Цель: 90 дней", "90 天目标", "90日間の目標"),
+            Milestone(90, "90 Days Goal", "৯০ দিনের গোল", "هدف 90 يوم", "90 दिनों का लक्ष्य", "90 دن का ہدف", "Meta de 90 Días", "Цель: 90 дней", "90 天目标", "90日間の目標"),
             Milestone(180, "180 Days Goal", "১৮০ দিনের গোল", "هدف 180 يوم", "180 दिनों का लक्ष्य", "180 دن کا ہدف", "Meta de 180 Días", "Цель: 180 дней", "180 天目标", "180日間の目標"),
             Milestone(365, "1 Year Goal", "১ বছরের গোল", "هدف سنة", "1 साल का लक्ष्य", "1 साल का हدف", "Meta de 1 Año", "Цель: 1 год", "1 年目标", "1年間の目標")
         )
@@ -164,7 +164,6 @@ fun StatsScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        // Current Target Goal Indicator Card (Auto Progressive)
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -220,7 +219,6 @@ fun StatsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Stat Cards Grid (2x2)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -249,7 +247,7 @@ fun StatsScreen(
                     "es" -> "Racha Actual"
                     "ru" -> "Текущая серия"
                     "zh" -> "当前连胜"
-                    "ja" -> "現在のストリーク"
+                    "ja" -> "平均ストリーク"
                     else -> "Current Streak"
                 },
                 value = formatMillisToDaysHours(stats.currentStreakMillis, appLanguage),
@@ -297,7 +295,6 @@ fun StatsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Milestones
         Text(
             text = when (appLanguage) {
                 "bn" -> "মাইলেস্টোন ও ব্যাজ"

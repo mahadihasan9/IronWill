@@ -3,6 +3,8 @@ package org.ironman.ui.screens
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,10 +28,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,7 +67,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.icons.filled.SystemUpdate
 import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinBoxInput
 import org.ironman.ui.components.PinVerificationDialog
@@ -77,6 +82,11 @@ import org.ironman.ui.viewmodel.MainViewModel
 import org.ironman.utils.LauncherAliasManager
 import org.ironman.utils.UpdateStatus
 
+enum class BackupActionType {
+    EXPORT,
+    IMPORT
+}
+
 @Composable
 fun SettingsScreen(
     viewModel: MainViewModel,
@@ -88,8 +98,17 @@ fun SettingsScreen(
     val appLockEnabled by viewModel.appLockEnabled.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
 
+    val currentVersionName = remember {
+        try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.versionName ?: "1.0"
+        } catch (e: Exception) {
+            "1.0"
+        }
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.checkForUpdates()
+        viewModel.checkForUpdates(context)
     }
 
     val currentIconId by viewModel.selectedIconId.collectAsState()
@@ -105,6 +124,90 @@ fun SettingsScreen(
 
     var showPinDialogForIconChange by remember { mutableStateOf(false) }
     var showCreatePinDialogForIconChange by remember { mutableStateOf(false) }
+
+    var showPinDialogForBackup by remember { mutableStateOf(false) }
+    var pendingBackupAction by remember { mutableStateOf(BackupActionType.EXPORT) }
+
+    var pendingExportJson by remember { mutableStateOf<String?>(null) }
+
+    val createDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let { targetUri ->
+            pendingExportJson?.let { json ->
+                try {
+                    context.contentResolver.openOutputStream(targetUri)?.use { os ->
+                        os.write(json.toByteArray())
+                    }
+                    Toast.makeText(context, when (currentLanguage) {
+                        "bn" -> "ব্যাকআপ ফাইল এক্সপোর্ট সফল হয়েছে"
+                        "ar" -> "تم تصدير ملف النسخ الاحتياطي بنجاح"
+                        "hi" -> "बैकअप फ़ाइल सफलतापूर्वक निर्यात की गई"
+                        "ur" -> "بیک اپ فائل ایکسپورٹ ہو گئی"
+                        "es" -> "Copia de seguridad exportada con éxito"
+                        "ru" -> "Резервная копия успешно экспортирована"
+                        "zh" -> "备份文件导出成功"
+                        "ja" -> "バックアップファイルがエクスポートされました"
+                        else -> "Backup file exported successfully"
+                    }, Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    val openDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { sourceUri ->
+            try {
+                val jsonString = context.contentResolver.openInputStream(sourceUri)?.bufferedReader()?.use { it.readText() }
+                if (!jsonString.isNullOrBlank()) {
+                    viewModel.importBackupJson(jsonString) { success ->
+                        if (success) {
+                            Toast.makeText(context, when (currentLanguage) {
+                                "bn" -> "ব্যাকআপ ফাইল ইমপোর্ট সফল হয়েছে"
+                                "ar" -> "تم استيراد النسخة الاحتياطية بنجاح"
+                                "hi" -> "बैकअप फ़ाइल सफलतापूर्वक आयात की गई"
+                                "ur" -> "بیک اپ فائل امپورٹ ہو گئی"
+                                "es" -> "Copia de seguridad importada con éxito"
+                                "ru" -> "Резервная копия успешно импортирована"
+                                "zh" -> "备份文件导入成功"
+                                "ja" -> "バックアップファイルがインポートされました"
+                                else -> "Backup file imported successfully"
+                            }, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, when (currentLanguage) {
+                                "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ফাইলটি সঠিক নয়"
+                                "ar" -> "فشل الاستيراد: ملف غير صالح"
+                                "hi" -> "आयात विफल: अमान्य फ़ाइल"
+                                "ur" -> "امپورٹ ناکام: غیر موزوں فائل"
+                                "es" -> "Error al importar: Archivo no válido"
+                                "ru" -> "Ошибка импорта: неверный файл"
+                                "zh" -> "导入失败：文件格式无效"
+                                "ja" -> "インポート失敗：無効なファイル"
+                                else -> "Import failed: Invalid file"
+                            }, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    val triggerExport = {
+        viewModel.exportBackupJson { json ->
+            pendingExportJson = json
+            createDocumentLauncher.launch("iron_will_backup.json")
+        }
+    }
+
+    val triggerImport = {
+        openDocumentLauncher.launch(arrayOf("application/json", "*/*"))
+    }
 
     val scrollState = rememberScrollState()
     val languageScrollState = rememberScrollState()
@@ -134,7 +237,6 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Independent App Icon & Name Disguise Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -185,7 +287,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Section 1: Choose Icon (Full uncropped photo preview)
                 Text(
                     text = when (currentLanguage) {
                         "bn" -> "১. অ্যাপের আইকন বেছে নিন:"
@@ -242,7 +343,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Section 2: Choose Name
                 Text(
                     text = when (currentLanguage) {
                         "bn" -> "২. অ্যাপের নাম বেছে নিন:"
@@ -287,7 +387,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Section 3: Apply Disguise Button
                 val selectedName = LauncherAliasManager.AVAILABLE_NAMES.getOrNull(chosenNameIndex) ?: "Iron Will"
                 Button(
                     onClick = {
@@ -323,7 +422,6 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Language Selector Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -381,14 +479,12 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Security PIN Lock & App Startup Lock Settings
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                // Toggle for App Startup Lock
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -430,7 +526,7 @@ fun SettingsScreen(
                                     "es" -> "Requiere PIN cada vez que se abre la app"
                                     "ru" -> "Запрашивать PIN при каждом входе"
                                     "zh" -> "每次打开应用均需输入 PIN 码"
-                                    "ja" -> "アプリ起動ごとにPIN को要求"
+                                    "ja" -> "アプリ起動ごとにPINを要求"
                                     else -> "Require 4-digit PIN every time app opens"
                                 },
                                 fontSize = 12.sp,
@@ -490,7 +586,125 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // App Updates Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Storage,
+                        contentDescription = "Backup",
+                        tint = PrimaryCyan
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "ব্যাকআপ ও রিস্টোর"
+                                "ar" -> "النسخ الاحتياطي والاستعادة"
+                                "hi" -> "बैकअप और रीस्टोर"
+                                "ur" -> "بیک اپ اور ریسٹور"
+                                "es" -> "Copia de Seguridad y Restauración"
+                                "ru" -> "Резервное копирование и восстановление"
+                                "zh" -> "备份与恢复"
+                                "ja" -> "バックアップと復元"
+                                else -> "Backup & Restore"
+                            },
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "অ্যাপের সব ডেটা JSON ফাইল হিসেবে ব্যাকআপ ও ইমপোর্ট করুন"
+                                "ar" -> "تصدير واستيراد بيانات التطبيق في ملف JSON"
+                                "hi" -> "JSON फ़ाइल के रूप में ऐप डेटा निर्यात और आयात करें"
+                                "ur" -> "JSON فائل کے طور پر ایپ ڈیٹا ایکسپورٹ اور امپورٹ کریں"
+                                "es" -> "Exporta e importa datos de la app en archivo JSON"
+                                "ru" -> "Экспорт и импорт данных приложения в JSON"
+                                "zh" -> "将应用数据导出和导入为 JSON 文件"
+                                "ja" -> "アプリデータをJSONファイルでエクスポート・インポート"
+                                else -> "Export and import app data in a JSON file"
+                            },
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            if (pinCode.isBlank()) {
+                                triggerExport()
+                            } else {
+                                pendingBackupAction = BackupActionType.EXPORT
+                                showPinDialogForBackup = true
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.FileUpload, contentDescription = "Export")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "এক্সপোর্ট (Export)"
+                                "ar" -> "تصدير (Export)"
+                                "hi" -> "निर्यात (Export)"
+                                "ur" -> "ایکسپورٹ (Export)"
+                                "es" -> "Exportar (Export)"
+                                "ru" -> "Экспорт (Export)"
+                                "zh" -> "导出 (Export)"
+                                "ja" -> "エクスポート (Export)"
+                                else -> "Export JSON"
+                            },
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            if (pinCode.isBlank()) {
+                                triggerImport()
+                            } else {
+                                pendingBackupAction = BackupActionType.IMPORT
+                                showPinDialogForBackup = true
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.FileDownload, contentDescription = "Import")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = when (currentLanguage) {
+                                "bn" -> "ইমপোর্ট (Import)"
+                                "ar" -> "استيراد (Import)"
+                                "hi" -> "आयात (Import)"
+                                "ur" -> "امپورٹ (Import)"
+                                "es" -> "Importar (Import)"
+                                "ru" -> "Импорт (Import)"
+                                "zh" -> "导入 (Import)"
+                                "ja" -> "インポート (Import)"
+                                else -> "Import JSON"
+                            },
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -531,15 +745,15 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = when (currentLanguage) {
-                                    "bn" -> "বর্তমান সংস্করণ: v3.1 (Build 4)"
-                                    "ar" -> "الإصدار الحالي: v3.1 (Build 4)"
-                                    "hi" -> "वर्तमान संस्करण: v3.1 (Build 4)"
-                                    "ur" -> "موجودہ ورژن: v3.1 (Build 4)"
-                                    "es" -> "Versión Actual: v3.1 (Build 4)"
-                                    "ru" -> "Текущая версия: v3.1 (Build 4)"
-                                    "zh" -> "当前版本: v3.1 (Build 4)"
-                                    "ja" -> "現在のバージョン: v3.1 (Build 4)"
-                                    else -> "Current Version: v3.1 (Build 4)"
+                                    "bn" -> "বর্তমান সংস্করণ: v$currentVersionName"
+                                    "ar" -> "الإصدار الحالي: v$currentVersionName"
+                                    "hi" -> "वर्तमान संस्करण: v$currentVersionName"
+                                    "ur" -> "موجودہ ورژن: v$currentVersionName"
+                                    "es" -> "Versión Actual: v$currentVersionName"
+                                    "ru" -> "Текущая версия: v$currentVersionName"
+                                    "zh" -> "当前版本: v$currentVersionName"
+                                    "ja" -> "現在のバージョン: v$currentVersionName"
+                                    else -> "Current Version: v$currentVersionName"
                                 },
                                 fontSize = 12.sp,
                                 color = TextMuted
@@ -548,7 +762,7 @@ fun SettingsScreen(
                     }
 
                     OutlinedButton(
-                        onClick = { viewModel.checkForUpdates() },
+                        onClick = { viewModel.checkForUpdates(context) },
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
@@ -692,7 +906,6 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // About Developer / GitHub Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -751,77 +964,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Button 0: Website
-                val wbsiteURL = "https://mahdi-bin-iqbal.netlify.app"
-                OutlinedButton(
-                    onClick = {
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wbsiteURL))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Language,
-                        contentDescription = "Website",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = when (currentLanguage) {
-                            "bn" -> "ওয়েবসাইট (Website)"
-                            "ar" -> "الموقع الإلكتروني (Website)"
-                            "hi" -> "वेबसाइट (Website)"
-                            "ur" -> "ویب سائٹ (Website)"
-                            "es" -> "Sitio Web (Website)"
-                            "ru" -> "Веб-сайт (Website)"
-                            "zh" -> "网站 (Website)"
-                            "ja" -> "ウェブサイト (Website)"
-                            else -> "Website"
-                        },
-                        color = PrimaryCyan,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Button 1: GitHub Profile
-                val githubProfileUrl = "https://github.com/mahadihasan9"
-                OutlinedButton(
-                    onClick = {
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubProfileUrl))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.OpenInNew,
-                        contentDescription = "GitHub",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "github.com/mahadihasan9",
-                        color = PrimaryCyan,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Button 2: Source Code
                 val sourceCodeUrl = "https://github.com/mahadihasan9/IronWill"
                 OutlinedButton(
                     onClick = {
@@ -861,7 +1003,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Button 3: Bug Report / Issues
                 val issueUrl = "https://github.com/mahadihasan9/IronWill/issues"
                 OutlinedButton(
                     onClick = {
@@ -898,48 +1039,35 @@ fun SettingsScreen(
                         fontWeight = FontWeight.Medium
                     )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Button 4: Contribute
-                val contributeUrl = "https://github.com/mahadihasan9/IronWill"
-                OutlinedButton(
-                    onClick = {
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contributeUrl))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.OpenInNew,
-                        contentDescription = "Contribute",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = when (currentLanguage) {
-                            "bn" -> "কন্ট্রিবিউট করুন (Contribute)"
-                            "ar" -> "المساهمة في المشروع (Contribute)"
-                            "hi" -> "योगदान दें (Contribute)"
-                            "ur" -> "تعاون کریں (Contribute)"
-                            "es" -> "Contribuir al Proyecto (Contribute)"
-                            "ru" -> "Внести вклад (Contribute)"
-                            "zh" -> "参与贡献 (Contribute)"
-                            "ja" -> "プロジェクトに貢献 (Contribute)"
-                            else -> "Contribute to Project"
-                        },
-                        color = PrimaryCyan,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
             }
         }
+    }
+
+    if (showPinDialogForBackup) {
+        PinVerificationDialog(
+            correctPin = pinCode,
+            appLanguage = currentLanguage,
+            subtitle = when (currentLanguage) {
+                "bn" -> "ব্যাকআপ অপশন ব্যবহার করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لاستخدام خيار النسخ الاحتياطي:"
+                "hi" -> "बैकअप विकल्प का उपयोग करने के लिए पिन दर्ज करें:"
+                "ur" -> "بیک اپ کا استعمال کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para la copia de seguridad:"
+                "ru" -> "Введите PIN для использования резервного копирования:"
+                "zh" -> "输入 PIN 码以使用备份功能:"
+                "ja" -> "バックアップ機能を使用するにはPINを入力してください:"
+                else -> "Enter PIN for Backup options:"
+            },
+            onDismiss = { showPinDialogForBackup = false },
+            onPinSuccess = {
+                showPinDialogForBackup = false
+                if (pendingBackupAction == BackupActionType.EXPORT) {
+                    triggerExport()
+                } else {
+                    triggerImport()
+                }
+            }
+        )
     }
 
     if (showCreatePinDialogForIconChange) {

@@ -31,7 +31,6 @@ data class Quote(
 
 object QuotesProvider {
     val quotes = listOf(
-        // Prophetic Wisdom & Hadiths
         Quote(
             textEn = "The strong person is not the good wrestler. The strong person is the one who controls himself in a fit of anger and desire.",
             textBn = "প্রকৃত শক্তিশালী সে নয় যে কুস্তিতে জিতে, বরং সে-ই প্রকৃত শক্তিশালী যে লালসা ও রাগের সময়ে নিজেকে ধরে রাখতে পারে।",
@@ -97,8 +96,6 @@ object QuotesProvider {
             author = "Prophetic Wisdom (Hadith)",
             isHadith = true
         ),
-
-        // Willpower & Discipline Wisdom
         Quote(
             textEn = "He who conquers himself is the mightiest warrior.",
             textBn = "যে নিজেকে জয় করতে পারে, সে-ই সবচেয়ে বড় যোদ্ধা।",
@@ -132,7 +129,7 @@ object QuotesProvider {
             textEs = "El hierro se forja en el fuego. Tu mente se forja a través de la disciplina.",
             textRu = "Железо коварно в огне. Твой разум коварно дисциплиной.",
             textZh = "百炼成钢，百自律精明。",
-            textJa = " 鉄は火で鍛えられ、心は自律によって鍛えられる。",
+            textJa = "鉄は火で鍛えられ、心は自律によって鍛えられる。",
             author = "Iron Will"
         ),
         Quote(

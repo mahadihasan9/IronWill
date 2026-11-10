@@ -135,7 +135,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val updateStatus: StateFlow<UpdateStatus> = _updateStatus.asStateFlow()
 
     init {
-        // Ticking timer loop
         viewModelScope.launch {
             while (true) {
                 _currentTimeMillis.value = System.currentTimeMillis()
@@ -210,10 +209,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = StreakStats()
     )
 
-    fun checkForUpdates() {
+    fun checkForUpdates(context: Context) {
         viewModelScope.launch {
             _updateStatus.value = UpdateStatus.Checking
-            _updateStatus.value = UpdateChecker.checkForUpdates()
+            _updateStatus.value = UpdateChecker.checkForUpdates(context)
         }
     }
 
@@ -254,10 +253,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun resetStreak(note: String = "") {
+    fun resetStreak(resetTimestamp: Long = System.currentTimeMillis(), note: String = "") {
         viewModelScope.launch {
             val currentTimerId = activeTimer.value.id
-            repository.resetStreak(currentTimerId, note)
+            repository.resetStreak(currentTimerId, resetTimestamp, note)
             refreshQuote()
         }
     }
@@ -310,6 +309,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val currentTimerId = activeTimer.value.id
             repository.clearAllHistory(currentTimerId)
+        }
+    }
+
+    fun exportBackupJson(onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            val json = repository.exportBackupJson()
+            onResult(json)
+        }
+    }
+
+    fun importBackupJson(jsonString: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val success = repository.importBackupJson(jsonString)
+            onResult(success)
         }
     }
 

@@ -10,8 +10,10 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
+import org.json.JSONObject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "iron_will_settings")
 
@@ -114,7 +116,7 @@ class StreakRepository(private val context: Context) {
     }
 
     suspend fun deleteTimer(timerId: String) {
-        if (timerId == "main") return // Main timer cannot be deleted
+        if (timerId == "main") return
         context.dataStore.edit { preferences ->
             val currentTimers = getOrCreateTimersList(preferences).filterNot { it.id == timerId }
             preferences[KEY_TIMERS_JSON] = serializeTimersList(currentTimers)
@@ -140,16 +142,17 @@ class StreakRepository(private val context: Context) {
         }
     }
 
-    suspend fun resetStreak(timerId: String, note: String = "") {
-        val now = System.currentTimeMillis()
+    suspend fun resetStreak(timerId: String, resetTimestamp: Long = System.currentTimeMillis(), note: String = "") {
+        val now = resetTimestamp
         context.dataStore.edit { preferences ->
             val currentTimers = getOrCreateTimersList(preferences).map { timer ->
                 if (timer.id == timerId) {
                     if (timer.isTracking) {
+                        val endTs = if (now >= timer.startTimestamp) now else System.currentTimeMillis()
                         val newHistoryItem = StreakHistory(
-                            id = now,
+                            id = System.currentTimeMillis(),
                             startTimestamp = timer.startTimestamp,
-                            endTimestamp = now,
+                            endTimestamp = endTs,
                             note = note.replace("\n", " ").replace(";", ",")
                         )
                         val updatedHistory = listOf(newHistoryItem) + timer.historyList
@@ -238,6 +241,87 @@ class StreakRepository(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[KEY_SELECTED_ICON_ID] = iconId
             preferences[KEY_SELECTED_NAME_INDEX] = nameIndex
+        }
+    }
+
+    suspend fun exportBackupJson(): String {
+        val preferences = context.dataStore.data.first()
+        var rawTimers = preferences[KEY_TIMERS_JSON] ?: ""
+        if (rawTimers.isBlank()) {
+            val mainStart = preferences[KEY_START_TIMESTAMP] ?: System.currentTimeMillis()
+            val mainTracking = preferences[KEY_TRACKING_STATUS] ?: false
+            val mainHistoryRaw = preferences[KEY_HISTORY_DATA] ?: ""
+            val mainHistory = parseHistoryData(mainHistoryRaw)
+            val mainTimer = StreakTimer("main", "Main Counter", mainStart, mainTracking, mainHistory)
+            rawTimers = serializeTimersList(listOf(mainTimer))
+        }
+
+        val jsonObject = JSONObject()
+        jsonObject.put("version", 1)
+        jsonObject.put("exportTime", System.currentTimeMillis())
+        jsonObject.put("timers", JSONArray(rawTimers))
+        jsonObject.put("pinCode", preferences[KEY_PIN_CODE] ?: "")
+        jsonObject.put("pinEnabled", preferences[KEY_PIN_ENABLED] ?: true)
+        jsonObject.put("appLockEnabled", preferences[KEY_APP_LOCK_ENABLED] ?: false)
+        jsonObject.put("language", preferences[KEY_LANGUAGE] ?: "en")
+        jsonObject.put("selectedIconId", preferences[KEY_SELECTED_ICON_ID] ?: 1)
+        jsonObject.put("selectedNameIndex", preferences[KEY_SELECTED_NAME_INDEX] ?: 0)
+
+        return jsonObject.toString(2)
+    }
+
+    suspend fun importBackupJson(jsonString: String): Boolean {
+        return try {
+            val jsonObject = JSONObject(jsonString)
+            val importedTimersArray = jsonObject.optJSONArray("timers") ?: JSONArray()
+            val importedTimers = parseTimersJson(importedTimersArray.toString())
+
+            val pin = jsonObject.optString("pinCode", "")
+            val pinEnabled = jsonObject.optBoolean("pinEnabled", true)
+            val appLock = jsonObject.optBoolean("appLockEnabled", false)
+            val lang = jsonObject.optString("language", "en")
+            val iconId = jsonObject.optInt("selectedIconId", 1)
+            val nameIdx = jsonObject.optInt("selectedNameIndex", 0)
+
+            context.dataStore.edit { preferences ->
+                val existingTimers = getOrCreateTimersList(preferences).toMutableList()
+                val existingIds = existingTimers.map { it.id }.toMutableSet()
+
+                for (imported in importedTimers) {
+                    if (imported.id == "main") {
+                        val mainExists = existingIds.contains("main")
+                        if (mainExists) {
+                            val newId = "timer_imported_${System.currentTimeMillis()}_${(1000..9999).random()}"
+                            val renamed = imported.copy(id = newId, name = "${imported.name} (Backup)")
+                            existingTimers.add(renamed)
+                            existingIds.add(newId)
+                        } else {
+                            existingTimers.add(imported)
+                            existingIds.add("main")
+                        }
+                    } else {
+                        var timerId = imported.id
+                        if (existingIds.contains(timerId)) {
+                            timerId = "timer_imported_${System.currentTimeMillis()}_${(1000..9999).random()}"
+                        }
+                        val renamed = imported.copy(id = timerId)
+                        existingTimers.add(renamed)
+                        existingIds.add(timerId)
+                    }
+                }
+
+                preferences[KEY_TIMERS_JSON] = serializeTimersList(existingTimers)
+                if (pin.isNotBlank()) preferences[KEY_PIN_CODE] = pin
+                preferences[KEY_PIN_ENABLED] = pinEnabled
+                preferences[KEY_APP_LOCK_ENABLED] = appLock
+                preferences[KEY_LANGUAGE] = lang
+                preferences[KEY_SELECTED_ICON_ID] = iconId
+                preferences[KEY_SELECTED_NAME_INDEX] = nameIdx
+            }
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 

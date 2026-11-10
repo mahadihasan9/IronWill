@@ -38,7 +38,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -102,7 +101,6 @@ fun HomeScreen(
 
     val rankInfo = remember(streakTime.days, appLanguage) { viewModel.getRankInfo(streakTime.days) }
 
-    // Quote refreshes on navigation or manual tap
     var quoteRefreshTrigger by remember { mutableIntStateOf(0) }
     LaunchedEffect(quoteRefreshTrigger) {
         viewModel.refreshQuote()
@@ -121,6 +119,12 @@ fun HomeScreen(
 
     val scrollState = rememberScrollState()
 
+    val targetGoalMillis = targetGoalDays * 24 * 60 * 60 * 1000L
+    val progress = if (isTracking && targetGoalMillis > 0) {
+        (streakTime.totalMillis.toFloat() / targetGoalMillis.toFloat()).coerceIn(0f, 1f)
+    } else 0f
+    val progressPercentage = (progress * 100).toInt().coerceIn(0, 100)
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -129,7 +133,6 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // Rank Banner Card with Gradient Border
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -182,7 +185,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Main Circular Timer Card with Shield Emblem Watermark Background
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(260.dp)
@@ -196,7 +198,6 @@ fun HomeScreen(
                     .alpha(0.6f)
             )
 
-            val progress = if (isTracking) ((streakTime.days.toFloat() / targetGoalDays.toFloat())).coerceIn(0f, 1f) else 0f
             val animatedProgress by animateFloatAsState(
                 targetValue = progress,
                 animationSpec = tween(1000),
@@ -265,7 +266,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Goal Progress Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -293,7 +293,7 @@ fun HomeScreen(
                         color = TextPrimary
                     )
                     Text(
-                        text = "${((streakTime.days.toFloat() / targetGoalDays) * 100).toInt().coerceIn(0, 100)}%",
+                        text = "$progressPercentage%",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = PrimaryCyan
@@ -301,7 +301,7 @@ fun HomeScreen(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
-                    progress = { if (isTracking) (streakTime.days.toFloat() / targetGoalDays.toFloat()).coerceIn(0f, 1f) else 0f },
+                    progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp),
@@ -313,7 +313,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Action Buttons: Start Counter (if not tracking) OR Reset/Relapse (if tracking)
         if (!isTracking) {
             Button(
                 onClick = {
@@ -395,7 +394,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Motivational Quote Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -448,6 +446,7 @@ fun HomeScreen(
                         )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "\"${quote.getText(appLanguage)}\"",
@@ -470,7 +469,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Multi-Timer / Multi-Counter Management Card (Placed Below Advice Card)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -531,7 +529,6 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Horizontal list of Timers
                 val timersScrollState = rememberScrollState()
                 Row(
                     modifier = Modifier
@@ -642,7 +639,6 @@ fun HomeScreen(
                 if (timersList.size < 30) {
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Prominent Add Counter Button matching Main Counter Button style
                     Button(
                         onClick = {
                             currentPinAction = PinActionType.ADD_TIMER
@@ -668,7 +664,7 @@ fun HomeScreen(
                         Text(
                             text = when (appLanguage) {
                                 "bn" -> "নতুন কাউন্টার তৈরি করুন"
-                                "ar" -> "إضافة عداد جديد"
+                                "ar" -> "إشاء عداد جديد"
                                 "hi" -> "नया काउंटर बनाएं"
                                 "ur" -> "نیا کاؤنٹر بنائیں"
                                 "es" -> "Crear Nuevo Contador"
@@ -784,9 +780,11 @@ fun HomeScreen(
 
     if (showRelapseDialog) {
         RelapseDialog(
+            startTimestamp = activeTimer.startTimestamp,
+            appLanguage = appLanguage,
             onDismiss = { showRelapseDialog = false },
-            onConfirm = { note ->
-                viewModel.resetStreak(note)
+            onConfirm = { resetTs, note ->
+                viewModel.resetStreak(resetTs, note)
                 showRelapseDialog = false
             }
         )
@@ -930,7 +928,7 @@ fun HomeScreen(
                         text = when (appLanguage) {
                             "bn" -> "বাতিল"
                             "ar" -> "إلغاء"
-                            "hi" -> "রদ্দ करें"
+                            "hi" -> "रद्द करें"
                             "ur" -> "منسوخ کریں"
                             "es" -> "Cancelar"
                             "ru" -> "Отмена"

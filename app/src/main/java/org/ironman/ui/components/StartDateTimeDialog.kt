@@ -130,7 +130,6 @@ fun StartDateTimeDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Quick buttons: "Now", "Yesterday"
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)

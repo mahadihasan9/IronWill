@@ -1,5 +1,6 @@
 package org.ironman.utils
 
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -15,17 +16,22 @@ sealed class UpdateStatus {
 }
 
 object UpdateChecker {
-    const val CURRENT_VERSION_NAME = "3.1"
-    const val CURRENT_VERSION_CODE = 4
     private const val GITHUB_API_URL = "https://api.github.com/repos/mahadihasan9/IronWill/releases/latest"
     const val GITHUB_RELEASES_PAGE = "https://github.com/mahadihasan9/IronWill/releases"
 
-    suspend fun checkForUpdates(): UpdateStatus = withContext(Dispatchers.IO) {
+    suspend fun checkForUpdates(context: Context): UpdateStatus = withContext(Dispatchers.IO) {
+        val currentVersion = try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.versionName ?: "1.0"
+        } catch (e: Exception) {
+            "1.0"
+        }
+
         try {
             val url = URL(GITHUB_API_URL)
             val connection = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
-                setRequestProperty("User-Agent", "IronWillApp/$CURRENT_VERSION_NAME")
+                setRequestProperty("User-Agent", "IronWillApp/$currentVersion")
                 setRequestProperty("Accept", "application/vnd.github.v3+json")
                 connectTimeout = 8000
                 readTimeout = 8000
@@ -41,14 +47,14 @@ object UpdateChecker {
                 val htmlUrl = json.optString("html_url", GITHUB_RELEASES_PAGE)
                 val cleanTag = rawTag.removePrefix("v").removePrefix("V").trim()
 
-                if (cleanTag.isNotBlank() && isNewerVersion(cleanTag, CURRENT_VERSION_NAME)) {
+                if (cleanTag.isNotBlank() && isNewerVersion(cleanTag, currentVersion)) {
                     UpdateStatus.NewVersionAvailable(version = cleanTag, releaseUrl = htmlUrl)
                 } else {
-                    UpdateStatus.LatestVersion(version = CURRENT_VERSION_NAME)
+                    UpdateStatus.LatestVersion(version = currentVersion)
                 }
             } else {
                 connection.disconnect()
-                UpdateStatus.LatestVersion(version = CURRENT_VERSION_NAME)
+                UpdateStatus.LatestVersion(version = currentVersion)
             }
         } catch (e: Exception) {
             e.printStackTrace()

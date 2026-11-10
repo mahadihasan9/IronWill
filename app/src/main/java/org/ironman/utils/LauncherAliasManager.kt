@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import org.ironman.R
 
 data class AppIconPreset(
-    val id: Int, // 1 to 9
+    val id: Int,
     val title: String,
     val iconResId: Int
 )
@@ -45,7 +45,6 @@ object LauncherAliasManager {
         val pm = context.packageManager
         val packageName = context.packageName
 
-        // Enable target alias first using DONT_KILL_APP to prevent process termination
         try {
             pm.setComponentEnabledSetting(
                 ComponentName(packageName, targetAlias),
@@ -56,7 +55,6 @@ object LauncherAliasManager {
             e.printStackTrace()
         }
 
-        // Disable other aliases using DONT_KILL_APP
         for (i in 1..9) {
             for (j in 1..9) {
                 val alias = "org.ironman.MainActivityAlias_Icon${i}_Name${j}"
