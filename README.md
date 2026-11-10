@@ -1,58 +1,77 @@
-# Iron Will - Streak & Habit Tracker 🛡️
+# Iron Will
 
-**Iron Will** is a modern, privacy-focused Android application designed to help users track personal streaks, build self-discipline, and break unwanted habits through an advanced live counter, dynamic rank progression, motivational wisdom, and security disguises.
+### Build discipline. Track progress. Become stronger.
 
----
+Iron Will is a privacy-focused Android application designed to help you maintain personal streaks, build consistent habits, and overcome unwanted behaviors. It provides accurate real-time tracking, meaningful milestones, performance history, and optional security features in a focused dark-themed experience.
 
-## ✨ Features
+## Download
 
-- **Live Streak Counter**: Real-time tracking of your ongoing streak in days, hours, minutes, and seconds.
-- **Dynamic Rank Progression**: Earn rank titles and badges as your streak grows, advancing from *Recruit* to *Iron Sovereign*.
-- **Auto-Progressive Goals**: Target goals dynamically step up as you maintain your streak (from 3 days up to 1 year).
-- **Motivational Wisdom**: Multi-language quotes and advice that auto-rotate every 15 seconds, complete with manual refresh functionality.
-- **App Disguise & Custom Icons**: 9 distinct app icon styles and disguise labels (e.g. *Calculator*, *Clock*, *Notes*, *Fitness*) to keep your privacy secure on your home screen.
-- **Security PIN & Startup Lock**: Built-in 4-digit PIN protection for app startup and sensitive actions.
-- **History & Detailed Analytics**: Log past streaks with relapse notes, track best performance, and review lifetime stats.
-- **Multilingual Support**: Fully localized in 9 languages:
-  - English, Bengali (বাংলা), Arabic (العربية), Hindi (हिन्दी), Urdu (اردو), Spanish (Español), Russian (Русский), Chinese (中文), and Japanese (日本語).
-- **Modern Dark UI**: Elegant dark surface design accented with cyan and gold UI elements for comfortable viewing.
+Get the latest available release from GitHub:
 
----
+<p>
+  <a href="https://github.com/mahadihasan9/IronWill/releases/tag/3.3">
+    <strong>Download APK</strong>
+  </a>
+</p>
 
-## 🛠️ Tech Stack & Architecture
+## Why Iron Will?
 
-- **Language**: Kotlin 2.2+
-- **UI Framework**: Jetpack Compose (Material 3)
-- **Architecture**: MVVM (Model-View-ViewModel) + Clean Architecture
-- **State Management**: StateFlow & SharedFlow with Coroutines
-- **Local Storage**: Jetpack DataStore Preferences
-- **Build System**: Gradle with Kotlin DSL & AGP 9.2+
+Iron Will turns everyday progress into a clear and motivating journey. Monitor your current streak, work toward progressively challenging goals, review your previous performance, and stay motivated with carefully selected wisdom and advice.
 
----
+## Key Features
 
-## 🚀 Building the App
+### Progress Tracking
 
-To build the application using Gradle:
+- **Live streak timer** with real-time tracking in days, hours, minutes, and seconds.
+- **Progressive goals** that increase automatically from 3 days up to 1 year.
+- **Milestone-based ranks** that recognize your progress from *Recruit* to *Iron Sovereign*.
+- **Streak history** with relapse dates and optional personal notes.
+- **Performance statistics** including your best streak and lifetime progress.
+
+### Motivation and Personalization
+
+- **Motivational wisdom** that automatically rotates every 15 seconds.
+- **Manual quote refresh** whenever you want a new source of motivation.
+- **Modern dark interface** with comfortable cyan and gold accents.
+- **Multilingual support** for English, Bengali, Arabic, Hindi, Urdu, Spanish, Russian, Chinese, and Japanese.
+
+### Privacy and Security
+
+- **Optional 4-digit PIN protection** for app startup and sensitive actions.
+- **App disguise support** with 9 custom launcher icons.
+- **Neutral launcher names** such as *Calculator*, *Diary*, *Clock*, *Timer*, *Notes*, and *Fitness*.
+- **Local-first storage** using Android DataStore Preferences.
+
+## Built With
+
+- **Kotlin**
+- **Jetpack Compose** and **Material 3**
+- **MVVM** with Clean Architecture
+- **Kotlin Coroutines**, StateFlow, and SharedFlow
+- **Jetpack DataStore Preferences**
+- **Gradle Kotlin DSL**
+
+## Build from Source
+
+Clone the repository and open it in Android Studio, or build it directly with Gradle.
+
+Build a debug APK:
 
 ```bash
 ./gradlew assembleDebug
 ```
 
-For release builds:
+Build a release APK:
 
 ```bash
 ./gradlew assembleRelease
 ```
 
----
+## License
 
-## 📜 License
+Iron Will is open-source software licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](LICENSE) file for the complete license text.
 
-This project is licensed under the **GNU General Public License v2.0 (GPL-2.0)** - see the [LICENSE](LICENSE) file for details.
+## Author
 
----
-
-## 👤 Developer
-
-- **Developer**: Mahadi Hasan
-- **GitHub**: [@mahadihasan9](https://github.com/mahadihasan9)
+**Mahadi Hasan**
+[GitHub](https://github.com/mahadihasan9)

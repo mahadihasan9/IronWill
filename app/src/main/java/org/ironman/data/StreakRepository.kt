@@ -273,8 +273,21 @@ class StreakRepository(private val context: Context) {
     suspend fun importBackupJson(jsonString: String): Boolean {
         return try {
             val jsonObject = JSONObject(jsonString)
+            val exportTime = jsonObject.optLong("exportTime", System.currentTimeMillis())
             val importedTimersArray = jsonObject.optJSONArray("timers") ?: JSONArray()
             val importedTimers = parseTimersJson(importedTimersArray.toString())
+
+            val now = System.currentTimeMillis()
+
+            val adjustedTimers = importedTimers.map { timer ->
+                if (timer.isTracking) {
+                    val originalDuration = (exportTime - timer.startTimestamp).coerceAtLeast(0L)
+                    val adjustedStartTimestamp = now - originalDuration
+                    timer.copy(startTimestamp = adjustedStartTimestamp)
+                } else {
+                    timer
+                }
+            }
 
             val pin = jsonObject.optString("pinCode", "")
             val pinEnabled = jsonObject.optBoolean("pinEnabled", true)
@@ -284,39 +297,18 @@ class StreakRepository(private val context: Context) {
             val nameIdx = jsonObject.optInt("selectedNameIndex", 0)
 
             context.dataStore.edit { preferences ->
-                val existingTimers = getOrCreateTimersList(preferences).toMutableList()
-                val existingIds = existingTimers.map { it.id }.toMutableSet()
-
-                for (imported in importedTimers) {
-                    if (imported.id == "main") {
-                        val mainExists = existingIds.contains("main")
-                        if (mainExists) {
-                            val newId = "timer_imported_${System.currentTimeMillis()}_${(1000..9999).random()}"
-                            val renamed = imported.copy(id = newId, name = "${imported.name} (Backup)")
-                            existingTimers.add(renamed)
-                            existingIds.add(newId)
-                        } else {
-                            existingTimers.add(imported)
-                            existingIds.add("main")
-                        }
-                    } else {
-                        var timerId = imported.id
-                        if (existingIds.contains(timerId)) {
-                            timerId = "timer_imported_${System.currentTimeMillis()}_${(1000..9999).random()}"
-                        }
-                        val renamed = imported.copy(id = timerId)
-                        existingTimers.add(renamed)
-                        existingIds.add(timerId)
-                    }
-                }
-
-                preferences[KEY_TIMERS_JSON] = serializeTimersList(existingTimers)
-                if (pin.isNotBlank()) preferences[KEY_PIN_CODE] = pin
+                preferences[KEY_TIMERS_JSON] = serializeTimersList(adjustedTimers)
+                preferences[KEY_PIN_CODE] = pin
                 preferences[KEY_PIN_ENABLED] = pinEnabled
                 preferences[KEY_APP_LOCK_ENABLED] = appLock
                 preferences[KEY_LANGUAGE] = lang
                 preferences[KEY_SELECTED_ICON_ID] = iconId
                 preferences[KEY_SELECTED_NAME_INDEX] = nameIdx
+
+                val activeId = preferences[KEY_SELECTED_TIMER_ID] ?: "main"
+                if (adjustedTimers.none { it.id == activeId }) {
+                    preferences[KEY_SELECTED_TIMER_ID] = adjustedTimers.firstOrNull()?.id ?: "main"
+                }
             }
             true
         } catch (e: Exception) {

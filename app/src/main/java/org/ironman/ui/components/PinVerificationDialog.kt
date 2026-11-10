@@ -91,6 +91,7 @@ fun PinVerificationDialog(
                                 onPinSuccess()
                             } else {
                                 isError = true
+                                pinInput = ""
                             }
                         }
                     },
@@ -123,6 +124,7 @@ fun PinVerificationDialog(
                         onPinSuccess()
                     } else {
                         isError = true
+                        pinInput = ""
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = AccentRed)

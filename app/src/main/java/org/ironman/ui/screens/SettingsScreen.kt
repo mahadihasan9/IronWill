@@ -129,6 +129,7 @@ fun SettingsScreen(
     var pendingBackupAction by remember { mutableStateOf(BackupActionType.EXPORT) }
 
     var pendingExportJson by remember { mutableStateOf<String?>(null) }
+    var showImportWarningDialog by remember { mutableStateOf(false) }
 
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
@@ -206,7 +207,7 @@ fun SettingsScreen(
     }
 
     val triggerImport = {
-        openDocumentLauncher.launch(arrayOf("application/json", "*/*"))
+        showImportWarningDialog = true
     }
 
     val scrollState = rememberScrollState()
@@ -1043,6 +1044,88 @@ fun SettingsScreen(
         }
     }
 
+    if (showImportWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { showImportWarningDialog = false },
+            title = {
+                Text(
+                    text = when (currentLanguage) {
+                        "bn" -> "ব্যাকআপ রিস্টোর করবেন?"
+                        "ar" -> "استعادة النسخة الاحتياطية؟"
+                        "hi" -> "क्या बैकअप रिस्टोर करें?"
+                        "ur" -> "بیک اپ ریسٹور کریں؟"
+                        "es" -> "¿Restaurar copia de seguridad?"
+                        "ru" -> "Восстановить резервную копию?"
+                        "zh" -> "恢复备份？"
+                        "ja" -> "バックアップを復元しますか？"
+                        else -> "Restore Backup?"
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = when (currentLanguage) {
+                        "bn" -> "সতর্কতা: ব্যাকআপ রিস্টোর করলে বর্তমান সব কাউন্টার ও সেটিংস মুছে গিয়ে ব্যাকআপের ফাইল দ্বারা পরিবর্তিত হবে। আপনি কি নিশ্চিত?"
+                        "ar" -> "تحذير: ستؤدي استعادة النسخة الاحتياطية إلى استبدال كافة عداداتك وإعداداتك الحالية. هل أنت تأكد؟"
+                        "hi" -> "चेतावनी: बैकअप रिस्टोर करने से आपके वर्तमान सभी काउंटर और सेटिंग्स बदल जाएंगी। क्या आप सुनिश्चित हैं?"
+                        "ur" -> "انتباہ: بیک اپ ریسٹور کرنے سے آپ کے موجودہ تمام کاؤنٹرز اور سیٹنگز تبدیل ہو جائیں گی۔ کیا آپ کو یقین ہے؟"
+                        "es" -> "Advertencia: Restaurar una copia de seguridad sobrescribirá todos tus contadores y ajustes actuales. ¿Deseas continuar?"
+                        "ru" -> "Предупреждение: восстановление резервной копии перезапишет все ваши текущие счетчики и настройки. Вы уверены?"
+                        "zh" -> "警告：恢复备份将覆盖并替换您当前所有的计时器和设置。您确定要继续吗？"
+                        "ja" -> "警告：バックアップを復元すると、現在のすべてのタイマーと設定が上書きされます。続行しますか？"
+                        else -> "Warning: Restoring a backup will overwrite and replace all your current counters, streak history, and settings. Are you sure you want to proceed?"
+                    },
+                    color = TextMuted,
+                    fontSize = 13.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showImportWarningDialog = false
+                        openDocumentLauncher.launch(arrayOf("application/json", "*/*"))
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                ) {
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "রিস্টোর করুন"
+                            "ar" -> "استعادة"
+                            "hi" -> "रिस्टोर करें"
+                            "ur" -> "ریسٹور"
+                            "es" -> "Restaurar"
+                            "ru" -> "Восстановить"
+                            "zh" -> "确认恢复"
+                            "ja" -> "復元する"
+                            else -> "Restore & Overwrite"
+                        },
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showImportWarningDialog = false }) {
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "বাতিল"
+                            "ar" -> "إلغاء"
+                            "hi" -> "रद्द करें"
+                            "ur" -> "منسوخ"
+                            "es" -> "Cancelar"
+                            "ru" -> "Отмена"
+                            "zh" -> "取消"
+                            "ja" -> "キャンセル"
+                            else -> "Cancel"
+                        }
+                    )
+                }
+            }
+        )
+    }
+
     if (showPinDialogForBackup) {
         PinVerificationDialog(
             correctPin = pinCode,
@@ -1251,7 +1334,22 @@ fun ChangePinDialog(
                             oldPinInput = it
                             errorMessage = ""
                             if (it.length == 4) {
-                                newPinFocusRequester.requestFocus()
+                                if (it != currentPin) {
+                                    errorMessage = when (appLanguage) {
+                                        "bn" -> "বর্তমান পিনটি সঠিক নয়"
+                                        "ar" -> "الرمز الحالي غير صحيح"
+                                        "hi" -> "वर्तमान पिन गलत है"
+                                        "ur" -> "موجودہ پن غلط ہے"
+                                        "es" -> "El PIN actual es incorrecto"
+                                        "ru" -> "Текущий PIN неверный"
+                                        "zh" -> "当前 PIN 码不正确"
+                                        "ja" -> "現在のPINが正しくありません"
+                                        else -> "Current PIN is incorrect"
+                                    }
+                                    oldPinInput = ""
+                                } else {
+                                    newPinFocusRequester.requestFocus()
+                                }
                             }
                         },
                         focusRequester = oldPinFocusRequester
@@ -1335,6 +1433,7 @@ fun ChangePinDialog(
                             "ja" -> "現在のPINが正しくありません"
                             else -> "Current PIN is incorrect"
                         }
+                        oldPinInput = ""
                     } else if (newPinInput.length != 4) {
                         errorMessage = when (appLanguage) {
                             "bn" -> "নতুন পিন অবশ্যই ৪ সংখ্যার হতে হবে"

@@ -286,6 +286,7 @@ fun AppLockOverlay(
                                     "ja" -> "PINが正しくありません。再試行してください。"
                                     else -> "Incorrect PIN. Try again."
                                 }
+                                pinInput = ""
                             }
                         }
                     },
