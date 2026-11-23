@@ -1,3 +1,23 @@
+/*
+ * Iron Will - Streak & Habit Tracker
+ * Copyright (C) 2026 Mahadi Hasan <islammdmahadi943@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
 package org.ironman.ui.screens
 
 import android.content.Intent
@@ -14,6 +34,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +44,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -63,12 +85,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.ironman.data.BackupCryptoManager
@@ -77,6 +103,7 @@ import org.ironman.ui.components.PinBoxInput
 import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.theme.AccentGold
 import org.ironman.ui.theme.AccentRed
+import org.ironman.ui.theme.CardBorder
 import org.ironman.ui.theme.DarkSurface
 import org.ironman.ui.theme.DarkSurfaceVariant
 import org.ironman.ui.theme.PrimaryCyan
@@ -248,19 +275,31 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Apps,
-                        contentDescription = "App Icon & Name",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryCyan.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Apps,
+                            contentDescription = "App Icon & Name",
+                            tint = PrimaryCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = when (currentLanguage) {
@@ -332,11 +371,11 @@ fun SettingsScreen(
                                 .border(
                                     width = if (isSelected) 2.5.dp else 1.dp,
                                     color = if (isSelected) PrimaryCyan else TextMuted.copy(alpha = 0.2f),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(14.dp)
                                 )
                                 .background(
                                     color = if (isSelected) PrimaryCyan.copy(alpha = 0.2f) else DarkSurfaceVariant,
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(14.dp)
                                 )
                                 .clickable { chosenIconId = iconPreset.id }
                                 .padding(6.dp),
@@ -407,9 +446,9 @@ fun SettingsScreen(
                             showPinDialogForIconChange = true
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = when (currentLanguage) {
@@ -420,7 +459,7 @@ fun SettingsScreen(
                             "es" -> "Aplicar Disfraz ($selectedName + Icono $chosenIconId)"
                             "ru" -> "Применить маскировку ($selectedName + Иконка $chosenIconId)"
                             "zh" -> "应用伪装 ($selectedName + 图标 $chosenIconId)"
-                            "ja" -> "伪装を適用 ($selectedName + アイコン $chosenIconId)"
+                            "ja" -> "偽装を適用 ($selectedName + アイコン $chosenIconId)"
                             else -> "Apply Disguise ($selectedName + Icon $chosenIconId)"
                         },
                         color = DarkSurface,
@@ -433,19 +472,31 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Language,
-                        contentDescription = "Language",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryCyan.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = "Language",
+                            tint = PrimaryCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "App Language",
                         fontSize = 16.sp,
@@ -453,7 +504,7 @@ fun SettingsScreen(
                         color = TextPrimary
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Row(
                     modifier = Modifier
@@ -479,7 +530,7 @@ fun SettingsScreen(
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = PrimaryCyan,
                                 selectedLabelColor = DarkSurface,
-                                containerColor = DarkSurface,
+                                containerColor = DarkSurfaceVariant,
                                 labelColor = TextPrimary
                             )
                         )
@@ -490,10 +541,13 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
@@ -505,12 +559,21 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = "PIN Lock",
-                            tint = PrimaryCyan
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryCyan.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = "PIN Lock",
+                                tint = PrimaryCyan,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = when (currentLanguage) {
@@ -558,7 +621,7 @@ fun SettingsScreen(
                         },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = PrimaryCyan,
-                            checkedTrackColor = DarkSurface
+                            checkedTrackColor = DarkSurfaceVariant
                         )
                     )
                 }
@@ -573,11 +636,11 @@ fun SettingsScreen(
                             showChangePinDialog = true
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Password, contentDescription = null)
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(imageVector = Icons.Default.Password, contentDescription = null, tint = PrimaryCyan)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = when (currentLanguage) {
                             "bn" -> if (pinCode.isBlank()) "৪-ডিজিট পিন সেট করুন" else "৪-ডিজিট পিন পরিবর্তন করুন"
@@ -589,7 +652,9 @@ fun SettingsScreen(
                             "zh" -> if (pinCode.isBlank()) "设置 4位数 PIN 码" else "修改 4位数 PIN 码"
                             "ja" -> if (pinCode.isBlank()) "4桁のPINを設定" else "4桁のPINを変更"
                             else -> if (pinCode.isBlank()) "Set 4-Digit PIN" else "Change 4-Digit PIN"
-                        }
+                        },
+                        color = PrimaryCyan,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -597,19 +662,35 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    brush = Brush.horizontalGradient(listOf(PrimaryCyan.copy(alpha = 0.5f), Color.Transparent)),
+                    shape = RoundedCornerShape(16.dp)
+                ),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Storage,
-                        contentDescription = "Backup",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryCyan.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Storage,
+                            contentDescription = "Backup",
+                            tint = PrimaryCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = when (currentLanguage) {
@@ -660,25 +741,40 @@ fun SettingsScreen(
                                 showPinDialogForBackup = true
                             }
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp)
+                        modifier = Modifier.weight(1f).height(46.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.FileUpload, contentDescription = "Export")
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = when (currentLanguage) {
-                                "bn" -> "এক্সপোর্ট (.db)"
-                                "ar" -> "تصدير (.db)"
-                                "hi" -> "निर्यात (.db)"
-                                "ur" -> "ایکسپورٹ (.db)"
-                                "es" -> "Exportar (.db)"
-                                "ru" -> "Экспорт (.db)"
-                                "zh" -> "导出 (.db)"
-                                "ja" -> "エクスポート (.db)"
-                                else -> "Export (.db)"
-                            },
-                            fontSize = 12.sp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FileUpload,
+                                contentDescription = "Export",
+                                tint = PrimaryCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = when (currentLanguage) {
+                                    "bn" -> "এক্সপোর্ট (.db)"
+                                    "ar" -> "تصدير (.db)"
+                                    "hi" -> "निर्यात (.db)"
+                                    "ur" -> "ایکسپورٹ (.db)"
+                                    "es" -> "Exportar (.db)"
+                                    "ru" -> "Экспорт (.db)"
+                                    "zh" -> "导出 (.db)"
+                                    "ja" -> "エクスポート (.db)"
+                                    else -> "Export (.db)"
+                                },
+                                color = PrimaryCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
 
                     OutlinedButton(
@@ -690,25 +786,40 @@ fun SettingsScreen(
                                 showPinDialogForBackup = true
                             }
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp)
+                        modifier = Modifier.weight(1f).height(46.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.FileDownload, contentDescription = "Import")
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = when (currentLanguage) {
-                                "bn" -> "ইমপোর্ট (.db)"
-                                "ar" -> "استيراد (.db)"
-                                "hi" -> "आयात (.db)"
-                                "ur" -> "امپورٹ (.db)"
-                                "es" -> "Importar (.db)"
-                                "ru" -> "Импорт (.db)"
-                                "zh" -> "导入 (.db)"
-                                "ja" -> "インポート (.db)"
-                                else -> "Import (.db)"
-                            },
-                            fontSize = 12.sp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FileDownload,
+                                contentDescription = "Import",
+                                tint = PrimaryCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = when (currentLanguage) {
+                                    "bn" -> "ইমপোর্ট (.db)"
+                                    "ar" -> "استيراد (.db)"
+                                    "hi" -> "आयात (.db)"
+                                    "ur" -> "امپورٹ (.db)"
+                                    "es" -> "Importar (.db)"
+                                    "ru" -> "Импорт (.db)"
+                                    "zh" -> "导入 (.db)"
+                                    "ja" -> "インポート (.db)"
+                                    else -> "Import (.db)"
+                                },
+                                color = PrimaryCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
@@ -716,10 +827,13 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
@@ -731,12 +845,21 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.SystemUpdate,
-                            contentDescription = "App Update",
-                            tint = PrimaryCyan
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryCyan.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SystemUpdate,
+                                contentDescription = "App Update",
+                                tint = PrimaryCyan,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = when (currentLanguage) {
@@ -774,7 +897,7 @@ fun SettingsScreen(
 
                     OutlinedButton(
                         onClick = { viewModel.checkForUpdates(context) },
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(10.dp)
                     ) {
                         Text(
                             text = when (currentLanguage) {
@@ -788,6 +911,7 @@ fun SettingsScreen(
                                 "ja" -> "更新を確認"
                                 else -> "Check Update"
                             },
+                            color = PrimaryCyan,
                             fontSize = 12.sp
                         )
                     }
@@ -810,7 +934,7 @@ fun SettingsScreen(
                                     }
                                 },
                             colors = CardDefaults.cardColors(containerColor = PrimaryCyan.copy(alpha = 0.15f)),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(10.dp)
                         ) {
                             Row(
                                 modifier = Modifier.padding(12.dp),
@@ -917,19 +1041,31 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Code,
-                        contentDescription = "Developer",
-                        tint = PrimaryCyan
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryCyan.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Code,
+                            contentDescription = "Developer",
+                            tint = PrimaryCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = when (currentLanguage) {
                             "bn" -> "ডেভেলপার সম্পর্কে"
@@ -985,8 +1121,8 @@ fun SettingsScreen(
                             e.printStackTrace()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Code,
@@ -1024,8 +1160,8 @@ fun SettingsScreen(
                             e.printStackTrace()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.BugReport,
@@ -1123,7 +1259,7 @@ fun SettingsScreen(
                 "hi" -> "बैकअप विकल्प का उपयोग करने के लिए पिन दर्ज करें:"
                 "ur" -> "بیک اپ کا استعمال کرنے کے لیے پن درج کریں:"
                 "es" -> "Introduce el PIN para la copia de seguridad:"
-                "ru" -> "Введите PIN для использования резервного копирования:"
+                "ru" -> "Введите PIN для использования резерवного копирования:"
                 "zh" -> "输入 PIN 码以使用备份功能:"
                 "ja" -> "バックアップ機能を使用するにはPINを入力してください:"
                 else -> "Enter PIN for Backup options:"
@@ -1363,7 +1499,7 @@ fun BackupDecryptPinDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
-                        "hi" -> "রद्द करें"
+                        "hi" -> "রদ্দ करें"
                         "ur" -> "منسوخ کریں"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"

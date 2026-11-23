@@ -1,33 +1,65 @@
+/*
+ * Iron Will - Streak & Habit Tracker
+ * Copyright (C) 2026 Mahadi Hasan <islammdmahadi943@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package org.ironman.data
 
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.File
 
-class StreakDatabaseHelper(private val context: Context) :
+class StreakDatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         const val DATABASE_NAME = "iron_will.db"
         private const val DATABASE_VERSION = 1
 
-        // Table Settings
         private const val TABLE_SETTINGS = "settings"
         private const val KEY_SETTING_KEY = "key"
         private const val KEY_SETTING_VALUE = "value"
 
-        // Table Timers
         private const val TABLE_TIMERS = "timers"
         private const val KEY_TIMER_ID = "id"
         private const val KEY_TIMER_NAME = "name"
         private const val KEY_TIMER_START_TIMESTAMP = "start_timestamp"
         private const val KEY_TIMER_IS_TRACKING = "is_tracking"
 
-        // Table History
         private const val TABLE_HISTORY = "history"
         private const val KEY_HISTORY_ID = "id"
         private const val KEY_HISTORY_TIMER_ID = "timer_id"
@@ -68,7 +100,6 @@ class StreakDatabaseHelper(private val context: Context) :
         db.execSQL(createTimersTable)
         db.execSQL(createHistoryTable)
 
-        // Insert default main counter if not present
         val initialValues = ContentValues().apply {
             put(KEY_TIMER_ID, "main")
             put(KEY_TIMER_NAME, "Main Counter")
@@ -78,16 +109,12 @@ class StreakDatabaseHelper(private val context: Context) :
         db.insert(TABLE_TIMERS, null, initialValues)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Handle database upgrades if needed in future versions
-    }
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
 
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
         db.setForeignKeyConstraintsEnabled(true)
     }
-
-    // --- Settings API ---
 
     fun getSetting(key: String, defaultValue: String): String {
         val db = readableDatabase
@@ -122,8 +149,6 @@ class StreakDatabaseHelper(private val context: Context) :
             SQLiteDatabase.CONFLICT_REPLACE
         )
     }
-
-    // --- Timers API ---
 
     fun getAllTimers(): List<StreakTimer> {
         val db = readableDatabase
@@ -190,8 +215,6 @@ class StreakDatabaseHelper(private val context: Context) :
         }
     }
 
-    // --- History API ---
-
     fun getHistoryForTimer(timerId: String): List<StreakHistory> {
         val db = readableDatabase
         val historyList = mutableListOf<StreakHistory>()
@@ -248,8 +271,6 @@ class StreakDatabaseHelper(private val context: Context) :
         val db = writableDatabase
         db.delete(TABLE_HISTORY, "$KEY_HISTORY_TIMER_ID = ?", arrayOf(timerId))
     }
-
-    // --- Bulk Restore API ---
 
     fun replaceAllData(
         settingsMap: Map<String, String>,

@@ -1,5 +1,45 @@
+/*
+ * Iron Will - Streak & Habit Tracker
+ * Copyright (C) 2026 Mahadi Hasan <islammdmahadi943@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package org.ironman.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,14 +50,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +81,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,7 +89,9 @@ import org.ironman.data.StreakHistory
 import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinVerificationDialog
 import org.ironman.ui.theme.AccentGold
+import org.ironman.ui.theme.AccentGreen
 import org.ironman.ui.theme.AccentRed
+import org.ironman.ui.theme.CardBorder
 import org.ironman.ui.theme.DarkSurface
 import org.ironman.ui.theme.DarkSurfaceVariant
 import org.ironman.ui.theme.PrimaryCyan
@@ -109,7 +157,7 @@ fun HistoryScreen(
                     onClick = {
                         requirePinThenExecute { showClearDialog = true }
                     },
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Text(
                         text = when (appLanguage) {
@@ -123,13 +171,15 @@ fun HistoryScreen(
                             "ja" -> "すべて消去"
                             else -> "Clear All"
                         },
-                        color = AccentRed
+                        color = AccentRed,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         if (timersList.size > 1) {
             val timersScrollState = rememberScrollState()
@@ -168,7 +218,7 @@ fun HistoryScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
         }
 
         if (historyList.isEmpty()) {
@@ -176,13 +226,27 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.History,
-                        contentDescription = "No History",
-                        tint = TextMuted,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryCyan.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = "No History",
+                            tint = PrimaryCyan,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
                         text = when (appLanguage) {
                             "bn" -> "কোনো হিস্ট্রি পাওয়া যায়নি"
@@ -196,13 +260,15 @@ fun HistoryScreen(
                             else -> "No history recorded yet"
                         },
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = TextSecondary
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
                     Text(
                         text = when (appLanguage) {
-                            "bn" -> "রিসেট করলে আপনার পূর্বের রেকর্ডগুলো এখানে দেখা যাবে।"
+                            "bn" -> "রিসেট করলে আপনার পূর্বের স্ট্রিক রেকর্ডগুলো এখানে দেখা যাবে।"
                             "ar" -> "ستظهر سجلاتك السابقة هنا عند إعادة الضبط"
                             "hi" -> "रीसेट करने पर आपके पिछले रिकॉर्ड यहां दिखाई देंगे।"
                             "ur" -> "ری سیٹ کرنے پر آپ کا ریکارڈ یہاں نظر آئے گا۔"
@@ -341,7 +407,7 @@ fun HistoryScreen(
                         text = when (appLanguage) {
                             "bn" -> "বাতিল"
                             "ar" -> "إلغاء"
-                            "hi" -> "रद्द करें"
+                            "hi" -> "রদ্দ करें"
                             "ur" -> "منسوخ کریں"
                             "es" -> "Cancelar"
                             "ru" -> "Отмена"
@@ -363,65 +429,115 @@ fun HistoryCard(
     onDelete: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(14.dp)),
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(14.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(14.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = when (appLanguage) {
-                        "bn" -> "মেয়াদ: ${item.getFormattedDuration()}"
-                        "ar" -> "المدة: ${item.getFormattedDuration()}"
-                        "hi" -> "अवधि: ${item.getFormattedDuration()}"
-                        "ur" -> "دورانیہ: ${item.getFormattedDuration()}"
-                        "es" -> "Duración: ${item.getFormattedDuration()}"
-                        "ru" -> "Длительность: ${item.getFormattedDuration()}"
-                        "zh" -> "时长: ${item.getFormattedDuration()}"
-                        "ja" -> "期間: ${item.getFormattedDuration()}"
-                        else -> "Duration: ${item.getFormattedDuration()}"
-                    },
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryCyan
-                )
-                IconButton(onClick = onDelete) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(PrimaryCyan.copy(alpha = 0.15f))
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "মেয়াদ: ${item.getFormattedDuration()}"
+                            "ar" -> "المدة: ${item.getFormattedDuration()}"
+                            "hi" -> "अवधि: ${item.getFormattedDuration()}"
+                            "ur" -> "دورانیہ: ${item.getFormattedDuration()}"
+                            "es" -> "Duración: ${item.getFormattedDuration()}"
+                            "ru" -> "Длительность: ${item.getFormattedDuration()}"
+                            "zh" -> "时长: ${item.getFormattedDuration()}"
+                            "ja" -> "期間: ${item.getFormattedDuration()}"
+                            else -> "Duration: ${item.getFormattedDuration()}"
+                        },
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryCyan
+                    )
+                }
+
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = TextMuted
+                        tint = AccentRed.copy(alpha = 0.85f),
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    tint = AccentGreen,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Started: ${item.getFormattedStartDate()}",
+                    fontSize = 12.sp,
+                    color = TextSecondary
+                )
+            }
+
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Started: ${item.getFormattedStartDate()}",
-                fontSize = 12.sp,
-                color = TextSecondary
-            )
-            Text(
-                text = "Ended:   ${item.getFormattedEndDate()}",
-                fontSize = 12.sp,
-                color = TextSecondary
-            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Stop,
+                    contentDescription = null,
+                    tint = AccentRed,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Ended:   ${item.getFormattedEndDate()}",
+                    fontSize = 12.sp,
+                    color = TextSecondary
+                )
+            }
+
             if (item.note.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Notes,
-                        contentDescription = "Note",
-                        tint = AccentGold,
-                        modifier = Modifier.padding(end = 6.dp)
-                    )
-                    Text(
-                        text = item.note,
-                        fontSize = 13.sp,
-                        color = TextPrimary
-                    )
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(DarkSurfaceVariant)
+                        .padding(10.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.Top) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Notes,
+                            contentDescription = "Note",
+                            tint = AccentGold,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .padding(top = 2.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = item.note,
+                            fontSize = 12.sp,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
         }

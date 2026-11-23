@@ -1,59 +1,53 @@
 # Iron Will
 
-### Build discipline. Track progress. Become stronger.
+### Build discipline. Track progress. Stay focused.
 
-Iron Will is a privacy-focused Android application designed to help you maintain personal streaks, build consistent habits, and overcome unwanted behaviors. It provides accurate real-time tracking, meaningful milestones, performance history, and optional security features in a focused dark-themed experience.
+Iron Will is a privacy-focused Android streak and habit tracker. It helps you stay consistent by tracking clean-time progress in real time, recording setbacks, setting goals, and showing achievements as you build better habits.
 
 ## Download
 
-Get the latest available release from GitHub:
+Download the latest APK from GitHub Releases:
 
 <p>
-  <a href="https://github.com/mahadihasan9/IronWill/releases/tag/3.3">
+  <a href="https://github.com/mahadihasan9/IronWill/releases/latest">
     <strong>Download APK</strong>
   </a>
 </p>
 
-## Why Iron Will?
-
-Iron Will turns everyday progress into a clear and motivating journey. Monitor your current streak, work toward progressively challenging goals, review your previous performance, and stay motivated with carefully selected wisdom and advice.
-
 ## Key Features
 
-### Progress Tracking
-
-- **Live streak timer** with real-time tracking in days, hours, minutes, and seconds.
-- **Progressive goals** that increase automatically from 3 days up to 1 year.
-- **Milestone-based ranks** that recognize your progress from *Recruit* to *Iron Sovereign*.
-- **Streak history** with relapse dates and optional personal notes.
-- **Performance statistics** including your best streak and lifetime progress.
-
-### Motivation and Personalization
-
-- **Motivational wisdom** that automatically rotates every 15 seconds.
-- **Manual quote refresh** whenever you want a new source of motivation.
-- **Modern dark interface** with comfortable cyan and gold accents.
-- **Multilingual support** for English, Bengali, Arabic, Hindi, Urdu, Spanish, Russian, Chinese, and Japanese.
-
-### Privacy and Security
-
-- **Optional 4-digit PIN protection** for app startup and sensitive actions.
-- **App disguise support** with 9 custom launcher icons.
-- **Neutral launcher names** such as *Calculator*, *Diary*, *Clock*, *Timer*, *Notes*, and *Fitness*.
-- **Local-first storage** using Android DataStore Preferences.
+- **Live streak counter** - Track days, hours, minutes, and seconds in real time.
+- **Multiple timers** - Manage separate counters for different habits or goals.
+- **Progressive goals** - Work toward goals that range from 3 days to 1 year.
+- **Milestones and badges** - Unlock achievements as your streak grows.
+- **Streak history** - Record relapse dates and add personal notes.
+- **Statistics** - View your best streak, current progress, and lifetime data.
+- **Daily motivation** - Display rotating quotes and refresh them when needed.
+- **Privacy protection** - Use an optional 4-digit PIN for the app and sensitive actions.
+- **App disguise** - Choose from 9 launcher icons and neutral app names.
+- **Encrypted backups** - Export and import your data securely.
+- **Nine languages** - English, Bengali, Arabic, Hindi, Urdu, Spanish, Russian, Chinese, and Japanese.
+- **Fully local storage** - Your streak data stays on your device.
 
 ## Built With
 
-- **Kotlin**
-- **Jetpack Compose** and **Material 3**
-- **MVVM** with Clean Architecture
-- **Kotlin Coroutines**, StateFlow, and SharedFlow
-- **Jetpack DataStore Preferences**
-- **Gradle Kotlin DSL**
+- Kotlin
+- Jetpack Compose and Material 3
+- MVVM architecture
+- Kotlin Coroutines and StateFlow
+- Jetpack DataStore Preferences
+- SQLite
+- Gradle Kotlin DSL
 
 ## Build from Source
 
-Clone the repository and open it in Android Studio, or build it directly with Gradle.
+### Requirements
+
+- Android Studio with Android SDK 37
+- JDK 11 or newer
+- An Android device or emulator running Android 7.0 (API 24) or newer
+
+Clone the repository and open the project in Android Studio.
 
 Build a debug APK:
 
@@ -61,15 +55,23 @@ Build a debug APK:
 ./gradlew assembleDebug
 ```
 
+The APK will be created in `app/build/outputs/apk/debug/`.
+
 Build a release APK:
 
 ```bash
 ./gradlew assembleRelease
 ```
 
+The release APK will be created in `app/build/outputs/apk/release/`.
+
+## Privacy
+
+Iron Will does not require an account. Streaks, history, settings, and backups are stored locally on the device. Exported backups can be encrypted with a PIN.
+
 ## License
 
-Iron Will is open-source software licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](LICENSE) file for the complete license text.
+Iron Will is open-source software licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See [LICENSE](LICENSE) for the complete license text.
 
 ## Author
 

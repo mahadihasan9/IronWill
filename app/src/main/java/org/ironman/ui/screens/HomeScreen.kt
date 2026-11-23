@@ -1,8 +1,29 @@
+/*
+ * Iron Will - Streak & Habit Tracker
+ * Copyright (C) 2026 Mahadi Hasan <islammdmahadi943@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
 package org.ironman.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -18,6 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -53,6 +75,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -138,10 +161,10 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    brush = Brush.horizontalGradient(listOf(PrimaryCyan.copy(alpha = 0.4f), Color.Transparent)),
+                    brush = Brush.horizontalGradient(listOf(PrimaryCyan.copy(alpha = 0.5f), Color.Transparent)),
                     shape = RoundedCornerShape(16.dp)
                 ),
-            colors = CardDefaults.cardColors(containerColor = DarkSurfaceVariant),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
             shape = RoundedCornerShape(16.dp)
         ) {
             Row(
@@ -150,13 +173,23 @@ fun HomeScreen(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.WorkspacePremium,
-                    contentDescription = "Rank",
-                    tint = AccentGold,
-                    modifier = Modifier.size(38.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(AccentGold.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.WorkspacePremium,
+                        contentDescription = "Rank",
+                        tint = AccentGold,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+
                 Spacer(modifier = Modifier.width(12.dp))
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = rankInfo.title,
@@ -164,6 +197,7 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = when (appLanguage) {
                             "bn" -> "পরবর্তী র্যাঙ্ক: ${rankInfo.nextRankTitle} (${rankInfo.daysToNextRank} দিন বাকি)"
@@ -266,10 +300,13 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(14.dp)),
             colors = CardDefaults.cardColors(containerColor = DarkSurface),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(14.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
@@ -304,7 +341,8 @@ fun HomeScreen(
                     progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp),
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp)),
                     color = PrimaryCyan,
                     trackColor = CardBorder
                 )
@@ -312,6 +350,7 @@ fun HomeScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
 
         if (!isTracking) {
             Button(
@@ -325,9 +364,9 @@ fun HomeScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
@@ -364,9 +403,9 @@ fun HomeScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.RestartAlt,
@@ -394,6 +433,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -412,12 +452,21 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.FormatQuote,
-                            contentDescription = "Quote",
-                            tint = AccentGold
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(AccentGold.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FormatQuote,
+                                contentDescription = "Quote",
+                                tint = AccentGold,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = when (appLanguage) {
                                 "bn" -> "উপদেশ"
@@ -442,12 +491,13 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.Default.Autorenew,
                             contentDescription = "Refresh",
-                            tint = TextSecondary
+                            tint = TextSecondary,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = "\"${quote.getText(appLanguage)}\"",
                     fontSize = 15.sp,
@@ -469,6 +519,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -485,12 +536,20 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Speed,
-                        contentDescription = "Multi Counters",
-                        tint = PrimaryCyan,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(PrimaryCyan.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Speed,
+                            contentDescription = "Multi Counters",
+                            tint = PrimaryCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
@@ -928,7 +987,7 @@ fun HomeScreen(
                         text = when (appLanguage) {
                             "bn" -> "বাতিল"
                             "ar" -> "إلغاء"
-                            "hi" -> "रद्द करें"
+                            "hi" -> "রद्द करें"
                             "ur" -> "منسوخ کریں"
                             "es" -> "Cancelar"
                             "ru" -> "Отмена"

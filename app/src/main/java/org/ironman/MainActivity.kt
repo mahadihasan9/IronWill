@@ -1,3 +1,22 @@
+/*
+ * Iron Will - Streak & Habit Tracker
+ * Copyright (C) 2026 Mahadi Hasan <islammdmahadi943@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 package org.ironman
 
 import android.os.Bundle
@@ -18,7 +37,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,8 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.ironman.ui.components.AppLockOverlay
 import org.ironman.ui.screens.HistoryScreen
@@ -54,7 +70,7 @@ enum class NavigationTab(
     val icon: ImageVector
 ) {
     COUNTER("Counter", "কাউন্টার", "العداد", "काउंटर", "کاؤنٹر", "Contador", "Счетчик", "计时器", "カウンター", Icons.Default.Timer),
-    HISTORY("History", "হিস্ট্রি", "السجل", "इतिहास", "تاریخ", "Historial", "История", "历史", "履歴", Icons.Default.History),
+    HISTORY("History", "হিস্ট্রি", "السجل", "إعادة", "تاریخ", "Historial", "История", "历史", "履歴", Icons.Default.History),
     STATS("Stats", "পরিসংখ্যান", "الإحصائيات", "आंकड़े", "شماریات", "Estadísticas", "Статистика", "统计", "統計", Icons.Default.BarChart),
     SETTINGS("Settings", "সেটিংস", "الإعدادات", "सेटिंग्स", "سیٹنگز", "Ajustes", "Настройки", "设置", "設定", Icons.Default.Settings);
 
@@ -106,37 +122,37 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
             }
         )
     } else {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                bottomBar = {
-                    NavigationBar(
-                        containerColor = DarkSurface
-                    ) {
-                        NavigationTab.entries.forEachIndexed { index, tab ->
-                            NavigationBarItem(
-                                selected = selectedTab == index,
-                                onClick = { selectedTab = index },
-                                icon = { Icon(imageVector = tab.icon, contentDescription = tab.getTitle(appLanguage)) },
-                                label = { Text(text = tab.getTitle(appLanguage)) },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = PrimaryCyan,
-                                    selectedTextColor = PrimaryCyan,
-                                    unselectedIconColor = TextMuted,
-                                    unselectedTextColor = TextMuted,
-                                    indicatorColor = DarkSurface
-                                )
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = {
+                NavigationBar(
+                    containerColor = DarkSurface
+                ) {
+                    NavigationTab.entries.forEachIndexed { index, tab ->
+                        NavigationBarItem(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            icon = { Icon(imageVector = tab.icon, contentDescription = tab.getTitle(appLanguage)) },
+                            label = { Text(text = tab.getTitle(appLanguage)) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = PrimaryCyan,
+                                selectedTextColor = PrimaryCyan,
+                                unselectedIconColor = TextMuted,
+                                unselectedTextColor = TextMuted,
+                                indicatorColor = DarkSurface
                             )
-                        }
+                        )
                     }
                 }
-            ) { innerPadding ->
-                val modifier = Modifier.padding(innerPadding)
-                when (selectedTab) {
-                    0 -> HomeScreen(viewModel = mainViewModel, modifier = modifier)
-                    1 -> HistoryScreen(viewModel = mainViewModel, modifier = modifier)
-                    2 -> StatsScreen(viewModel = mainViewModel, modifier = modifier)
-                    3 -> SettingsScreen(viewModel = mainViewModel, modifier = modifier)
-                }
+            }
+        ) { innerPadding ->
+            val modifier = Modifier.padding(innerPadding)
+            when (selectedTab) {
+                0 -> HomeScreen(viewModel = mainViewModel, modifier = modifier)
+                1 -> HistoryScreen(viewModel = mainViewModel, modifier = modifier)
+                2 -> StatsScreen(viewModel = mainViewModel, modifier = modifier)
+                3 -> SettingsScreen(viewModel = mainViewModel, modifier = modifier)
             }
         }
+    }
 }
