@@ -140,25 +140,16 @@ fun SettingsScreen(
     var showDecryptPinDialog by remember { mutableStateOf(false) }
     var selectedBackupBytes by remember { mutableStateOf<ByteArray?>(null) }
 
-    val processImportBytes = { bytes: ByteArray, passPin: String ->
+    val processImportBytes = { bytes: ByteArray, passPin: String, onComplete: ((Boolean) -> Unit)? ->
         viewModel.readBackupInfo(bytes, passPin) { info ->
             if (info != null) {
                 pendingRawImportBytes = info.rawDbBytes
                 pendingExportTime = info.exportTime
                 showImportOptionsDialog = true
                 showDecryptPinDialog = false
+                onComplete?.invoke(true)
             } else {
-                Toast.makeText(context, when (currentLanguage) {
-                    "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ভুল পিন অথবা ফাইলটি সঠিক নয়"
-                    "ar" -> "فشل الاستيراد: رمز غير صحيح أو ملف غير صالح"
-                    "hi" -> "आयात विफल: गलत पिन या अमान्य फ़ाइल"
-                    "ur" -> "امپورٹ ناکام: غلط پن یا غیر موزوں فائل"
-                    "es" -> "Error al importar: PIN incorrecto o archivo no válido"
-                    "ru" -> "Ошибка импорта: неверный PIN или файл"
-                    "zh" -> "导入失败：PIN 码错误或文件无效"
-                    "ja" -> "インポート失敗：無効なPINまたはファイル"
-                    else -> "Import failed: Invalid PIN or corrupted file"
-                }, Toast.LENGTH_LONG).show()
+                onComplete?.invoke(false)
             }
         }
     }
@@ -209,7 +200,7 @@ fun SettingsScreen(
                             }
                         }
                     } else {
-                        processImportBytes(bytes, "")
+                        processImportBytes(bytes, "", null)
                     }
                 }
             } catch (e: Exception) {
@@ -429,7 +420,7 @@ fun SettingsScreen(
                             "es" -> "Aplicar Disfraz ($selectedName + Icono $chosenIconId)"
                             "ru" -> "Применить маскировку ($selectedName + Иконка $chosenIconId)"
                             "zh" -> "应用伪装 ($selectedName + 图标 $chosenIconId)"
-                            "ja" -> "偽装を適用 ($selectedName + アイコン $chosenIconId)"
+                            "ja" -> "伪装を適用 ($selectedName + アイコン $chosenIconId)"
                             else -> "Apply Disguise ($selectedName + Icon $chosenIconId)"
                         },
                         color = DarkSurface,
@@ -1070,9 +1061,11 @@ fun SettingsScreen(
                 showDecryptPinDialog = false
                 selectedBackupBytes = null
             },
-            onPinSubmitted = { enteredPin ->
+            onPinSubmitted = { enteredPin, onResult ->
                 val bytes = selectedBackupBytes!!
-                processImportBytes(bytes, enteredPin)
+                processImportBytes(bytes, enteredPin) { success ->
+                    onResult(success)
+                }
             }
         )
     }
@@ -1246,52 +1239,68 @@ fun SettingsScreen(
 fun BackupDecryptPinDialog(
     appLanguage: String = "en",
     onDismiss: () -> Unit,
-    onPinSubmitted: (pin: String) -> Unit
+    onPinSubmitted: (enteredPin: String, onResult: (Boolean) -> Unit) -> Unit
 ) {
     var pinInput by remember { mutableStateOf("") }
+    var isError by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val displayTitle = when (appLanguage) {
+        "bn" -> "সিকিউরিটি পিন দিন"
+        "ar" -> "رمز الأمان مطلوب"
+        "hi" -> "सुरक्षा पिन आवश्यक"
+        "ur" -> "سیکیورٹی پن درکار ہے"
+        "es" -> "PIN de Seguridad Requerido"
+        "ru" -> "Требуется PIN-код"
+        "zh" -> "需要安全 PIN 码"
+        "ja" -> "セキュリティPINが必要です"
+        else -> "Security PIN Required"
+    }
+
+    val displaySubtitle = when (appLanguage) {
+        "bn" -> "এই ব্যাকআপ ফাইলটি খুলতে ৪-ডিজিট পিন দিন:"
+        "ar" -> "أدخل الرمز المكون من 4 أرقام لفتح هذا الملف:"
+        "hi" -> "इस बैकअप फ़ाइल को खोलने के लिए 4-अंकीय पिन दर्ज करें:"
+        "ur" -> "یہ بیک اپ کھولنے کے لیے 4 ہندسوں کا پن درج کریں:"
+        "es" -> "Introduce el PIN de 4 dígitos para abrir la copia:"
+        "ru" -> "Введите 4-значный PIN для открытия этой резервной копии:"
+        "zh" -> "解密该备份文件所需的 4位数 PIN 码:"
+        "ja" -> "このバックアップを開くための4桁のPINを入力してください:"
+        else -> "Enter 4-digit PIN to decrypt this backup file:"
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         keyboardController?.show()
     }
 
+    val verifyAndSubmit = { targetPin: String ->
+        if (targetPin.length == 4 && !isLoading) {
+            isLoading = true
+            isError = false
+            onPinSubmitted(targetPin) { success ->
+                isLoading = false
+                if (!success) {
+                    isError = true
+                    pinInput = ""
+                }
+            }
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(
-                text = when (appLanguage) {
-                    "bn" -> "ডিক্রিপশন পিন দিন"
-                    "ar" -> "أدخل رمز فك التشفير"
-                    "hi" -> "डिक्रिप्शन पिन दर्ज करें"
-                    "ur" -> "ڈیکرپشن پن درج کریں"
-                    "es" -> "Introduce PIN de Descifrado"
-                    "ru" -> "Введите PIN расшифровки"
-                    "zh" -> "解密 PIN 码"
-                    "ja" -> "復号用PIN入力"
-                    else -> "Backup Decryption PIN"
-                },
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold
-            )
+            Text(text = displayTitle, color = TextPrimary, fontWeight = FontWeight.Bold)
         },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = when (appLanguage) {
-                        "bn" -> "এই ব্যাকআপ ফাইলটি খুলতে ৪-ডিজিট পিন দিন:"
-                        "ar" -> "أدخل الرمز المكون من 4 أرقام لفتح هذا الملف:"
-                        "hi" -> "इस बैकअप फ़ाइल को खोलने के लिए 4-अंकीय पिन दर्ज करें:"
-                        "ur" -> "یہ بیک اپ کھولنے کے لیے 4 ہندسوں کا پن درج کریں:"
-                        "es" -> "Introduce el PIN de 4 dígitos para abrir la copia:"
-                        "ru" -> "Введите 4-значный PIN для открытия этой резервной копии:"
-                        "zh" -> "解密该备份文件所需的 4位数 PIN 码:"
-                        "ja" -> "このバックアップを開くための4桁のPINを入力してください:"
-                        else -> "Enter 4-digit PIN to decrypt this backup file:"
-                    },
-                    color = TextMuted,
-                    fontSize = 13.sp
+                    text = displaySubtitle,
+                    color = TextMuted
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -1299,37 +1308,52 @@ fun BackupDecryptPinDialog(
                     pinValue = pinInput,
                     onPinChange = {
                         pinInput = it
+                        isError = false
                         if (it.length == 4) {
-                            onPinSubmitted(it)
+                            verifyAndSubmit(it)
                         }
                     },
                     focusRequester = focusRequester
                 )
+
+                if (isError) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "ভুল পিন! আবার চেষ্টা করুন।"
+                            "ar" -> "رمز خاطئ. حاول مرة أخرى."
+                            "hi" -> "गलत पिन! फिर से प्रयास करें।"
+                            "ur" -> "غلط پن! دوبارہ کوشش کریں۔"
+                            "es" -> "PIN incorrecto. Inténtalo de nuevo."
+                            "ru" -> "Неверный PIN. Попробуйте еще раз."
+                            "zh" -> "PIN 码错误，请重试。"
+                            "ja" -> "PINが正しくありません。再試行してください。"
+                            else -> "Incorrect PIN. Try again."
+                        },
+                        color = AccentRed
+                    )
+                }
             }
         },
         confirmButton = {
             Button(
-                onClick = {
-                    if (pinInput.length == 4) {
-                        onPinSubmitted(pinInput)
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
+                onClick = { verifyAndSubmit(pinInput) },
+                colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                enabled = !isLoading
             ) {
                 Text(
                     text = when (appLanguage) {
-                        "bn" -> "ডিক্রিপ্ট করুন"
-                        "ar" -> "فك التشفير"
-                        "hi" -> "डिक्रिप्ट करें"
-                        "ur" -> "ڈیکرپٹ"
-                        "es" -> "Descifrar"
-                        "ru" -> "Расшифровать"
-                        "zh" -> "解密"
-                        "ja" -> "復号する"
-                        else -> "Decrypt & Open"
+                        "bn" -> "নিশ্চিত করুন"
+                        "ar" -> "تأكيد"
+                        "hi" -> "पुष्टि करें"
+                        "ur" -> "تصدیق کریں"
+                        "es" -> "Confirmar"
+                        "ru" -> "Подтвердить"
+                        "zh" -> "确认"
+                        "ja" -> "確認"
+                        else -> "Confirm"
                     },
-                    color = DarkSurface,
-                    fontWeight = FontWeight.Bold
+                    color = TextPrimary
                 )
             }
         },
@@ -1339,7 +1363,7 @@ fun BackupDecryptPinDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
-                        "hi" -> "रद्द करें"
+                        "hi" -> "রद्द करें"
                         "ur" -> "منسوخ کریں"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"
@@ -1592,7 +1616,7 @@ fun ChangePinDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
-                        "hi" -> "রद्द करें"
+                        "hi" -> "রদ্দ करें"
                         "ur" -> "منسوخ کریں"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"
@@ -1856,7 +1880,7 @@ fun ImportOptionsDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
-                        "hi" -> "রद्द करें"
+                        "hi" -> "রদ্দ करें"
                         "ur" -> "منسوخ"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"
