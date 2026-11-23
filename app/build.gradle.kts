@@ -11,7 +11,7 @@ android {
         applicationId = "org.ironman"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
+        versionCode = 7
         versionName = "3.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
