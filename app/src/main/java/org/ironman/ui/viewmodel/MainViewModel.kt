@@ -319,9 +319,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun importBackupJson(jsonString: String, onResult: (Boolean) -> Unit) {
+    fun importBackupJson(jsonString: String, adjustTimestamps: Boolean = true, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val success = repository.importBackupJson(jsonString)
+            val success = repository.importBackupJson(jsonString, adjustTimestamps)
             onResult(success)
         }
     }

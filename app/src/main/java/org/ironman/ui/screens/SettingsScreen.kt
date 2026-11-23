@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +46,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -54,6 +57,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -81,6 +85,7 @@ import org.ironman.ui.theme.TextSecondary
 import org.ironman.ui.viewmodel.MainViewModel
 import org.ironman.utils.LauncherAliasManager
 import org.ironman.utils.UpdateStatus
+import org.json.JSONObject
 
 enum class BackupActionType {
     EXPORT,
@@ -129,7 +134,9 @@ fun SettingsScreen(
     var pendingBackupAction by remember { mutableStateOf(BackupActionType.EXPORT) }
 
     var pendingExportJson by remember { mutableStateOf<String?>(null) }
-    var showImportWarningDialog by remember { mutableStateOf(false) }
+    var pendingImportJson by remember { mutableStateOf<String?>(null) }
+    var pendingExportTime by remember { mutableLongStateOf(0L) }
+    var showImportOptionsDialog by remember { mutableStateOf(false) }
 
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
@@ -165,32 +172,24 @@ fun SettingsScreen(
             try {
                 val jsonString = context.contentResolver.openInputStream(sourceUri)?.bufferedReader()?.use { it.readText() }
                 if (!jsonString.isNullOrBlank()) {
-                    viewModel.importBackupJson(jsonString) { success ->
-                        if (success) {
-                            Toast.makeText(context, when (currentLanguage) {
-                                "bn" -> "ব্যাকআপ ফাইল ইমপোর্ট সফল হয়েছে"
-                                "ar" -> "تم استيراد النسخة الاحتياطية بنجاح"
-                                "hi" -> "बैकअप फ़ाइल सफलतापूर्वक आयात की गई"
-                                "ur" -> "بیک اپ فائل امپورٹ ہو گئی"
-                                "es" -> "Copia de seguridad importada con éxito"
-                                "ru" -> "Резервная копия успешно импортирована"
-                                "zh" -> "备份文件导入成功"
-                                "ja" -> "バックアップファイルがインポートされました"
-                                else -> "Backup file imported successfully"
-                            }, Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, when (currentLanguage) {
-                                "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ফাইলটি সঠিক নয়"
-                                "ar" -> "فشل الاستيراد: ملف غير صالح"
-                                "hi" -> "आयात विफल: अमान्य फ़ाइल"
-                                "ur" -> "امپورٹ ناکام: غیر موزوں فائل"
-                                "es" -> "Error al importar: Archivo no válido"
-                                "ru" -> "Ошибка импорта: неверный файл"
-                                "zh" -> "导入失败：文件格式无效"
-                                "ja" -> "インポート失敗：無効なファイル"
-                                else -> "Import failed: Invalid file"
-                            }, Toast.LENGTH_SHORT).show()
-                        }
+                    try {
+                        val jsonObj = JSONObject(jsonString)
+                        val expTime = jsonObj.optLong("exportTime", 0L)
+                        pendingImportJson = jsonString
+                        pendingExportTime = expTime
+                        showImportOptionsDialog = true
+                    } catch (e: Exception) {
+                        Toast.makeText(context, when (currentLanguage) {
+                            "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ফাইলটি সঠিক নয়"
+                            "ar" -> "فشل الاستيراد: ملف غير صالح"
+                            "hi" -> "आयात विफल: अमान्य फ़ाइल"
+                            "ur" -> "امپورٹ ناکام: غیر موزوں فائل"
+                            "es" -> "Error al importar: Archivo no válido"
+                            "ru" -> "Ошибка импорта: неверный файл"
+                            "zh" -> "导入失败：文件格式无效"
+                            "ja" -> "インポート失敗：無効なファイル"
+                            else -> "Import failed: Invalid file"
+                        }, Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -207,7 +206,7 @@ fun SettingsScreen(
     }
 
     val triggerImport = {
-        showImportWarningDialog = true
+        openDocumentLauncher.launch(arrayOf("application/json", "*/*"))
     }
 
     val scrollState = rememberScrollState()
@@ -1044,83 +1043,44 @@ fun SettingsScreen(
         }
     }
 
-    if (showImportWarningDialog) {
-        AlertDialog(
-            onDismissRequest = { showImportWarningDialog = false },
-            title = {
-                Text(
-                    text = when (currentLanguage) {
-                        "bn" -> "ব্যাকআপ রিস্টোর করবেন?"
-                        "ar" -> "استعادة النسخة الاحتياطية؟"
-                        "hi" -> "क्या बैकअप रिस्टोर करें?"
-                        "ur" -> "بیک اپ ریسٹور کریں؟"
-                        "es" -> "¿Restaurar copia de seguridad?"
-                        "ru" -> "Восстановить резервную копию?"
-                        "zh" -> "恢复备份？"
-                        "ja" -> "バックアップを復元しますか？"
-                        else -> "Restore Backup?"
-                    },
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                )
+    if (showImportOptionsDialog && pendingImportJson != null) {
+        ImportOptionsDialog(
+            exportTime = pendingExportTime,
+            appLanguage = currentLanguage,
+            onDismiss = {
+                showImportOptionsDialog = false
+                pendingImportJson = null
             },
-            text = {
-                Text(
-                    text = when (currentLanguage) {
-                        "bn" -> "সতর্কতা: ব্যাকআপ রিস্টোর করলে বর্তমান সব কাউন্টার ও সেটিংস মুছে গিয়ে ব্যাকআপের ফাইল দ্বারা পরিবর্তিত হবে। আপনি কি নিশ্চিত?"
-                        "ar" -> "تحذير: ستؤدي استعادة النسخة الاحتياطية إلى استبدال كافة عداداتك وإعداداتك الحالية. هل أنت تأكد؟"
-                        "hi" -> "चेतावनी: बैकअप रिस्टोर करने से आपके वर्तमान सभी काउंटर और सेटिंग्स बदल जाएंगी। क्या आप सुनिश्चित हैं?"
-                        "ur" -> "انتباہ: بیک اپ ریسٹور کرنے سے آپ کے موجودہ تمام کاؤنٹرز اور سیٹنگز تبدیل ہو جائیں گی۔ کیا آپ کو یقین ہے؟"
-                        "es" -> "Advertencia: Restaurar una copia de seguridad sobrescribirá todos tus contadores y ajustes actuales. ¿Deseas continuar?"
-                        "ru" -> "Предупреждение: восстановление резервной копии перезапишет все ваши текущие счетчики и настройки. Вы уверены?"
-                        "zh" -> "警告：恢复备份将覆盖并替换您当前所有的计时器和设置。您确定要继续吗？"
-                        "ja" -> "警告：バックアップを復元すると、現在のすべてのタイマーと設定が上書きされます。続行しますか？"
-                        else -> "Warning: Restoring a backup will overwrite and replace all your current counters, streak history, and settings. Are you sure you want to proceed?"
-                    },
-                    color = TextMuted,
-                    fontSize = 13.sp
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showImportWarningDialog = false
-                        openDocumentLauncher.launch(arrayOf("application/json", "*/*"))
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                ) {
-                    Text(
-                        text = when (currentLanguage) {
-                            "bn" -> "রিস্টোর করুন"
-                            "ar" -> "استعادة"
-                            "hi" -> "रिस्टोर करें"
-                            "ur" -> "ریسٹور"
-                            "es" -> "Restaurar"
-                            "ru" -> "Восстановить"
-                            "zh" -> "确认恢复"
-                            "ja" -> "復元する"
-                            else -> "Restore & Overwrite"
-                        },
-                        color = TextPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showImportWarningDialog = false }) {
-                    Text(
-                        text = when (currentLanguage) {
-                            "bn" -> "বাতিল"
-                            "ar" -> "إلغاء"
-                            "hi" -> "रद्द करें"
-                            "ur" -> "منسوخ"
-                            "es" -> "Cancelar"
-                            "ru" -> "Отмена"
-                            "zh" -> "取消"
-                            "ja" -> "キャンセル"
-                            else -> "Cancel"
-                        }
-                    )
+            onConfirmImport = { adjustTimestamps ->
+                val jsonToImport = pendingImportJson!!
+                showImportOptionsDialog = false
+                pendingImportJson = null
+                viewModel.importBackupJson(jsonToImport, adjustTimestamps) { success ->
+                    if (success) {
+                        Toast.makeText(context, when (currentLanguage) {
+                            "bn" -> "ব্যাকআপ ফাইল ইমপোর্ট সফল হয়েছে"
+                            "ar" -> "تم استيراد النسخة الاحتياطية بنجاح"
+                            "hi" -> "बैकअप फ़ाइल सफलतापूर्वक आयात की गई"
+                            "ur" -> "بیک اپ فائل امپورٹ ہو گئی"
+                            "es" -> "Copia de seguridad importada con éxito"
+                            "ru" -> "Резервная копия успешно импортирована"
+                            "zh" -> "备份文件导入成功"
+                            "ja" -> "バックアップファイルがインポートされました"
+                            else -> "Backup file imported successfully"
+                        }, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, when (currentLanguage) {
+                            "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ফাইলটি সঠিক নয়"
+                            "ar" -> "فشل الاستيراد: ملف غير صالح"
+                            "hi" -> "आयात विफल: अमान्य फ़ाइल"
+                            "ur" -> "امپورٹ ناکام: غیر موزوں فائل"
+                            "es" -> "Error al importar: Archivo no válido"
+                            "ru" -> "Ошибка импорта: неверный файл"
+                            "zh" -> "导入失败：文件格式无效"
+                            "ja" -> "インポート失敗：無効なファイル"
+                            else -> "Import failed: Invalid file"
+                        }, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         )
@@ -1489,6 +1449,270 @@ fun ChangePinDialog(
                         "ar" -> "إلغاء"
                         "hi" -> "रद्द करें"
                         "ur" -> "منسوخ کریں"
+                        "es" -> "Cancelar"
+                        "ru" -> "Отмена"
+                        "zh" -> "取消"
+                        "ja" -> "キャンセル"
+                        else -> "Cancel"
+                    }
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun ImportOptionsDialog(
+    exportTime: Long,
+    appLanguage: String,
+    onDismiss: () -> Unit,
+    onConfirmImport: (adjustTimestamps: Boolean) -> Unit
+) {
+    var adjustTimestampsChoice by remember { mutableStateOf(true) }
+
+    val formattedExportDate = remember(exportTime) {
+        if (exportTime > 0) {
+            try {
+                val sdf = java.text.SimpleDateFormat("MMM dd, yyyy - hh:mm a", java.util.Locale.getDefault())
+                sdf.format(java.util.Date(exportTime))
+            } catch (e: Exception) {
+                null
+            }
+        } else null
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = when (appLanguage) {
+                    "bn" -> "ব্যাকআপ রিস্টোর অপশন"
+                    "ar" -> "خيارات استعادة النسخة الاحتياطية"
+                    "hi" -> "बैकअप रिस्टोर विकल्प"
+                    "ur" -> "بیک اپ ریسٹور کی آپشنز"
+                    "es" -> "Opciones de Restauración"
+                    "ru" -> "Параметры восстановления"
+                    "zh" -> "恢复备份选项"
+                    "ja" -> "バックアップ復元オプション"
+                    else -> "Restore Backup Options"
+                },
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+        },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "সতর্কতা: ব্যাকআপ রিস্টোর করলে বর্তমান সব কাউন্টার ও সেটিংস মুছে গিয়ে ব্যাকআপ ফাইল দ্বারা পরিবর্তিত হবে।"
+                        "ar" -> "تحذير: ستؤدي استعادة النسخة الاحتياطية إلى استبدال كافة عداداتك وإعداداتك الحالية."
+                        "hi" -> "चेतावनी: बैकअप रिस्टोर करने से आपके वर्तमान सभी काउंटर और सेटिंग्स बदल जाएंगी।"
+                        "ur" -> "انتباہ: بیک اپ ریسٹور کرنے سے آپ کے موجودہ تمام کاؤنٹرز اور سیٹنگز تبدیل ہو جائیں گی۔"
+                        "es" -> "Advertencia: Restaurar una copia de seguridad sobrescribirá todos tus contadores y ajustes actuales."
+                        "ru" -> "Предупреждение: восстановление резервной копии перезапишет все ваши текущие счетчики и настройки."
+                        "zh" -> "警告：恢复备份将覆盖并替换您当前所有的计时器和设置。"
+                        "ja" -> "警告：バックアップを復元すると、現在のすべてのタイマーと設定が上書きされます。"
+                        else -> "Warning: Restoring a backup will overwrite and replace all your current counters, history, and settings."
+                    },
+                    color = AccentRed,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                if (formattedExportDate != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = when (appLanguage) {
+                            "bn" -> "ব্যাকআপ তৈরির সময়: $formattedExportDate"
+                            "ar" -> "تاريخ إنشاء النسخة: $formattedExportDate"
+                            "hi" -> "बैकअप बनाने का समय: $formattedExportDate"
+                            "ur" -> "بیک اپ بنانے کا وقت: $formattedExportDate"
+                            "es" -> "Copia creada el: $formattedExportDate"
+                            "ru" -> "Создано: $formattedExportDate"
+                            "zh" -> "备份创建时间: $formattedExportDate"
+                            "ja" -> "バックアップ作成日時: $formattedExportDate"
+                            else -> "Backup created on: $formattedExportDate"
+                        },
+                        color = PrimaryCyan,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "চলমান স্ট্রিকের সময় কীভাবে রিস্টোর করা হবে?"
+                        "ar" -> "كيف ينبغي استعادة العدادات النشطة؟"
+                        "hi" -> "सक्रिय स्ट्रीक टाइमर कैसे रिस्टोर किए जाएं?"
+                        "ur" -> "ایکٹو اسٹریک ٹائمر کیسے ریسٹور کیے جائیں؟"
+                        "es" -> "¿Cómo se deben restaurar los contadores activos?"
+                        "ru" -> "Как восстановить активные таймеры?"
+                        "zh" -> "如何恢复正在运行的计时器？"
+                        "ja" -> "アクティブなタイマーをどのように復元しますか？"
+                        else -> "How should active streak timers be restored?"
+                    },
+                    color = TextPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { adjustTimestampsChoice = true },
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (adjustTimestampsChoice) PrimaryCyan.copy(alpha = 0.15f) else DarkSurfaceVariant
+                    ),
+                    border = BorderStroke(
+                        width = if (adjustTimestampsChoice) 1.5.dp else 0.5.dp,
+                        color = if (adjustTimestampsChoice) PrimaryCyan else TextMuted.copy(alpha = 0.3f)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        RadioButton(
+                            selected = adjustTimestampsChoice,
+                            onClick = { adjustTimestampsChoice = true },
+                            colors = RadioButtonDefaults.colors(selectedColor = PrimaryCyan)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Column {
+                            Text(
+                                text = when (appLanguage) {
+                                    "bn" -> "মধ্যবর্তী সময় বাদ দিন (টাইম অ্যাডজাস্ট)"
+                                    "ar" -> "خصم الوقت المنقضي (تعديل الوقت)"
+                                    "hi" -> "बीच का समय घटाएं (समय समायोजित करें)"
+                                    "ur" -> "درمیانی وقت منہا کریں (وقت ایڈجسٹ)"
+                                    "es" -> "Restar tiempo transcurrido (Ajustar)"
+                                    "ru" -> "Вычесть прошедшее время (Настройка)"
+                                    "zh" -> "扣除中间间隔时间（调整时间）"
+                                    "ja" -> "経過時間を差し引く（時間を調整）"
+                                    else -> "Subtract elapsed gap time (Adjust)"
+                                },
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = when (appLanguage) {
+                                    "bn" -> "ব্যাকআপ নেওয়ার পর থেকে বর্তমান সময় পর্যন্ত গ্যাপ বাদ দিবে। ব্যাকআপের সময়ের স্ট্রিক দিন অপরিবর্তিত থাকবে।"
+                                    "ar" -> "يستثني الفجوة بين التصدير والآن. يحافظ على مدة العداد عند التصدير."
+                                    "hi" -> "बैकअप और अब के बीच के समय को हटाता है। बैकअप के समय की स्ट्रीक बनी रहेगी।"
+                                    "ur" -> "بیک اپ اور اب کے درمیان کا وقت منہا کرے گا۔ بیک اپ کے وقت والی اسٹریک قائم رہے گی۔"
+                                    "es" -> "Excluye el tiempo transcurrido. Mantiene la duración exacta del momento de la copia."
+                                    "ru" -> "Исключает время с момента экспорта. Сохраняет длительность на момент экспорта."
+                                    "zh" -> "排除从导出至今的时间。保持导出时的连续天数不变。"
+                                    "ja" -> "バックアップ作成からの経過時間を除外します。作成時の継続時間を維持します。"
+                                    else -> "Excludes time elapsed since backup. Preserves exact streak duration from when backup was taken."
+                                },
+                                fontSize = 11.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { adjustTimestampsChoice = false },
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (!adjustTimestampsChoice) PrimaryCyan.copy(alpha = 0.15f) else DarkSurfaceVariant
+                    ),
+                    border = BorderStroke(
+                        width = if (!adjustTimestampsChoice) 1.5.dp else 0.5.dp,
+                        color = if (!adjustTimestampsChoice) PrimaryCyan else TextMuted.copy(alpha = 0.3f)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        RadioButton(
+                            selected = !adjustTimestampsChoice,
+                            onClick = { adjustTimestampsChoice = false },
+                            colors = RadioButtonDefaults.colors(selectedColor = PrimaryCyan)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Column {
+                            Text(
+                                text = when (appLanguage) {
+                                    "bn" -> "মূল শুরুর সময় ঠিক রাখুন (মাঝের সময়সহ)"
+                                    "ar" -> "الحفاظ على وقت البدء الأصلي (تضمين)"
+                                    "hi" -> "मूल प्रारंभ समय बनाए रखें (समय शामिल)"
+                                    "ur" -> "اصل شروع کا وقت برقرار رکھیں (وقت شامل)"
+                                    "es" -> "Mantener hora de inicio original (Incluir)"
+                                    "ru" -> "Сохранить исходное время начала (Включая)"
+                                    "zh" -> "保留原始开始时间（包含间隔）"
+                                    "ja" -> "元の開始日時を維持（経過時間を含む）"
+                                    else -> "Keep original start time (Include gap)"
+                                },
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = when (appLanguage) {
+                                    "bn" -> "মাঝের সময় বাদ দিবে না। মূল শুরুর তারিখ থেকেই অবিরত স্ট্রিক টাইম গণনা হতে থাকবে।"
+                                    "ar" -> "لا يخصم الوقت المنقضي. يستمر العداد بدون انقطاع من تاريخ البدء الأصلي."
+                                    "hi" -> "बीच का समय नहीं घटाता है। मूल प्रारंभ तिथि से स्ट्रीक जारी रहेगी।"
+                                    "ur" -> "درمیانی وقت منہا نہیں کرے گا۔ اصل تاریخ سے اسٹریک جاری رہے گی۔"
+                                    "es" -> "No resta el tiempo transcurrido. El contador continúa desde la fecha original."
+                                    "ru" -> "Не вычитает прошедшее время. Таймер продолжается с исходной даты."
+                                    "zh" -> "不扣除间隔时间。计时器将从最初开始日期连续计算。"
+                                    "ja" -> "経過時間を差し引きません。元の開始日時から継続してカウントします。"
+                                    else -> "Does not subtract elapsed time. Streak timer continues uninterrupted from original start date."
+                                },
+                                fontSize = 11.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirmImport(adjustTimestampsChoice) },
+                colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+            ) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "রিস্টোর করুন"
+                        "ar" -> "استعادة"
+                        "hi" -> "रिस्टोर करें"
+                        "ur" -> "ریسٹور"
+                        "es" -> "Restaurar"
+                        "ru" -> "Восстановить"
+                        "zh" -> "确认恢复"
+                        "ja" -> "復元する"
+                        else -> "Restore Data"
+                    },
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "বাতিল"
+                        "ar" -> "إلغاء"
+                        "hi" -> "रद्द करें"
+                        "ur" -> "منسوخ"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"
                         "zh" -> "取消"

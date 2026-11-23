@@ -270,7 +270,7 @@ class StreakRepository(private val context: Context) {
         return jsonObject.toString(2)
     }
 
-    suspend fun importBackupJson(jsonString: String): Boolean {
+    suspend fun importBackupJson(jsonString: String, adjustTimestamps: Boolean = true): Boolean {
         return try {
             val jsonObject = JSONObject(jsonString)
             val exportTime = jsonObject.optLong("exportTime", System.currentTimeMillis())
@@ -280,7 +280,7 @@ class StreakRepository(private val context: Context) {
             val now = System.currentTimeMillis()
 
             val adjustedTimers = importedTimers.map { timer ->
-                if (timer.isTracking) {
+                if (timer.isTracking && adjustTimestamps) {
                     val originalDuration = (exportTime - timer.startTimestamp).coerceAtLeast(0L)
                     val adjustedStartTimestamp = now - originalDuration
                     timer.copy(startTimestamp = adjustedStartTimestamp)
