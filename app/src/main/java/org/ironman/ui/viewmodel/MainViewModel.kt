@@ -312,16 +312,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun exportBackupJson(onResult: (String) -> Unit) {
+    fun exportEncryptedBackup(pin: String, onResult: (ByteArray) -> Unit) {
         viewModelScope.launch {
-            val json = repository.exportBackupJson()
-            onResult(json)
+            val bytes = repository.exportEncryptedDbBackup(pin)
+            onResult(bytes)
         }
     }
 
-    fun importBackupJson(jsonString: String, adjustTimestamps: Boolean = true, onResult: (Boolean) -> Unit) {
+    fun readBackupInfo(bytes: ByteArray, pin: String, onResult: (org.ironman.data.BackupInfo?) -> Unit) {
         viewModelScope.launch {
-            val success = repository.importBackupJson(jsonString, adjustTimestamps)
+            val info = repository.readBackupInfo(bytes, pin)
+            onResult(info)
+        }
+    }
+
+    fun importBackupDb(rawDbBytes: ByteArray, adjustTimestamps: Boolean, exportTime: Long, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val success = repository.importBackupDb(rawDbBytes, adjustTimestamps, exportTime)
             onResult(success)
         }
     }

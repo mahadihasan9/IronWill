@@ -71,6 +71,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.ironman.data.BackupCryptoManager
 import org.ironman.ui.components.CreatePinDialog
 import org.ironman.ui.components.PinBoxInput
 import org.ironman.ui.components.PinVerificationDialog
@@ -85,7 +86,6 @@ import org.ironman.ui.theme.TextSecondary
 import org.ironman.ui.viewmodel.MainViewModel
 import org.ironman.utils.LauncherAliasManager
 import org.ironman.utils.UpdateStatus
-import org.json.JSONObject
 
 enum class BackupActionType {
     EXPORT,
@@ -133,30 +133,55 @@ fun SettingsScreen(
     var showPinDialogForBackup by remember { mutableStateOf(false) }
     var pendingBackupAction by remember { mutableStateOf(BackupActionType.EXPORT) }
 
-    var pendingExportJson by remember { mutableStateOf<String?>(null) }
-    var pendingImportJson by remember { mutableStateOf<String?>(null) }
+    var pendingExportBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var pendingRawImportBytes by remember { mutableStateOf<ByteArray?>(null) }
     var pendingExportTime by remember { mutableLongStateOf(0L) }
     var showImportOptionsDialog by remember { mutableStateOf(false) }
+    var showDecryptPinDialog by remember { mutableStateOf(false) }
+    var selectedBackupBytes by remember { mutableStateOf<ByteArray?>(null) }
+
+    val processImportBytes = { bytes: ByteArray, passPin: String ->
+        viewModel.readBackupInfo(bytes, passPin) { info ->
+            if (info != null) {
+                pendingRawImportBytes = info.rawDbBytes
+                pendingExportTime = info.exportTime
+                showImportOptionsDialog = true
+                showDecryptPinDialog = false
+            } else {
+                Toast.makeText(context, when (currentLanguage) {
+                    "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ভুল পিন অথবা ফাইলটি সঠিক নয়"
+                    "ar" -> "فشل الاستيراد: رمز غير صحيح أو ملف غير صالح"
+                    "hi" -> "आयात विफल: गलत पिन या अमान्य फ़ाइल"
+                    "ur" -> "امپورٹ ناکام: غلط پن یا غیر موزوں فائل"
+                    "es" -> "Error al importar: PIN incorrecto o archivo no válido"
+                    "ru" -> "Ошибка импорта: неверный PIN или файл"
+                    "zh" -> "导入失败：PIN 码错误或文件无效"
+                    "ja" -> "インポート失敗：無効なPINまたはファイル"
+                    else -> "Import failed: Invalid PIN or corrupted file"
+                }, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     val createDocumentLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("application/json")
+        contract = ActivityResultContracts.CreateDocument("application/octet-stream")
     ) { uri ->
         uri?.let { targetUri ->
-            pendingExportJson?.let { json ->
+            pendingExportBytes?.let { bytes ->
                 try {
                     context.contentResolver.openOutputStream(targetUri)?.use { os ->
-                        os.write(json.toByteArray())
+                        os.write(bytes)
                     }
                     Toast.makeText(context, when (currentLanguage) {
-                        "bn" -> "ব্যাকআপ ফাইল এক্সপোর্ট সফল হয়েছে"
-                        "ar" -> "تم تصدير ملف النسخ الاحتياطي بنجاح"
-                        "hi" -> "बैकअप फ़ाइल सफलतापूर्वक निर्यात की गई"
-                        "ur" -> "بیک اپ فائل ایکسپورٹ ہو گئی"
-                        "es" -> "Copia de seguridad exportada con éxito"
-                        "ru" -> "Резервная копия успешно экспортирована"
-                        "zh" -> "备份文件导出成功"
-                        "ja" -> "バックアップファイルがエクスポートされました"
-                        else -> "Backup file exported successfully"
+                        "bn" -> "এনক্রিপ্টেড ব্যাকআপ ফাইল (.db) এক্সপোর্ট সফল হয়েছে"
+                        "ar" -> "تم تصدير ملف النسخ الاحتياطي المشفر بنجاح"
+                        "hi" -> "एनक्रिप्टेड बैकअप फ़ाइल (.db) सफलतापूर्वक निर्यात की गई"
+                        "ur" -> "انکرپٹڈ بیک اپ فائل ایکسپورٹ ہو گئی"
+                        "es" -> "Copia de seguridad encriptada exportada con éxito"
+                        "ru" -> "Зашифрованная резервная копия успешно экспортирована"
+                        "zh" -> "加密备份文件 (.db) 导出成功"
+                        "ja" -> "暗号化されたバックアップファイル (.db) がエクスポートされました"
+                        else -> "Encrypted backup file (.db) exported successfully"
                     }, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -170,26 +195,21 @@ fun SettingsScreen(
     ) { uri ->
         uri?.let { sourceUri ->
             try {
-                val jsonString = context.contentResolver.openInputStream(sourceUri)?.bufferedReader()?.use { it.readText() }
-                if (!jsonString.isNullOrBlank()) {
-                    try {
-                        val jsonObj = JSONObject(jsonString)
-                        val expTime = jsonObj.optLong("exportTime", 0L)
-                        pendingImportJson = jsonString
-                        pendingExportTime = expTime
-                        showImportOptionsDialog = true
-                    } catch (e: Exception) {
-                        Toast.makeText(context, when (currentLanguage) {
-                            "bn" -> "ইমপোর্ট ব্যর্থ হয়েছে: ফাইলটি সঠিক নয়"
-                            "ar" -> "فشل الاستيراد: ملف غير صالح"
-                            "hi" -> "आयात विफल: अमान्य फ़ाइल"
-                            "ur" -> "امپورٹ ناکام: غیر موزوں فائل"
-                            "es" -> "Error al importar: Archivo no válido"
-                            "ru" -> "Ошибка импорта: неверный файл"
-                            "zh" -> "导入失败：文件格式无效"
-                            "ja" -> "インポート失敗：無効なファイル"
-                            else -> "Import failed: Invalid file"
-                        }, Toast.LENGTH_SHORT).show()
+                val bytes = context.contentResolver.openInputStream(sourceUri)?.use { it.readBytes() }
+                if (bytes != null && bytes.isNotEmpty()) {
+                    selectedBackupBytes = bytes
+                    if (BackupCryptoManager.isEncryptedBackup(bytes)) {
+                        viewModel.readBackupInfo(bytes, pinCode) { info ->
+                            if (info != null) {
+                                pendingRawImportBytes = info.rawDbBytes
+                                pendingExportTime = info.exportTime
+                                showImportOptionsDialog = true
+                            } else {
+                                showDecryptPinDialog = true
+                            }
+                        }
+                    } else {
+                        processImportBytes(bytes, "")
                     }
                 }
             } catch (e: Exception) {
@@ -199,14 +219,14 @@ fun SettingsScreen(
     }
 
     val triggerExport = {
-        viewModel.exportBackupJson { json ->
-            pendingExportJson = json
-            createDocumentLauncher.launch("iron_will_backup.json")
+        viewModel.exportEncryptedBackup(pinCode) { bytes ->
+            pendingExportBytes = bytes
+            createDocumentLauncher.launch("iron_will_backup.db")
         }
     }
 
     val triggerImport = {
-        openDocumentLauncher.launch(arrayOf("application/json", "*/*"))
+        openDocumentLauncher.launch(arrayOf("application/octet-stream", "application/x-sqlite3", "*/*"))
     }
 
     val scrollState = rememberScrollState()
@@ -602,15 +622,15 @@ fun SettingsScreen(
                     Column {
                         Text(
                             text = when (currentLanguage) {
-                                "bn" -> "ব্যাকআপ ও রিস্টোর"
-                                "ar" -> "النسخ الاحتياطي والاستعادة"
-                                "hi" -> "बैकअप और रीस्टोर"
-                                "ur" -> "بیک اپ اور ریسٹور"
-                                "es" -> "Copia de Seguridad y Restauración"
-                                "ru" -> "Резервное копирование и восстановление"
-                                "zh" -> "备份与恢复"
-                                "ja" -> "バックアップと復元"
-                                else -> "Backup & Restore"
+                                "bn" -> "ব্যাকআপ ও রিস্টোর (Encrypted SQLite DB)"
+                                "ar" -> "النسخ الاحتياطي والاستعادة المشفرة"
+                                "hi" -> "एनक्रिप्टेड बैकअप और रीस्टोर"
+                                "ur" -> "انکرپٹڈ بیک اپ اور ریسٹور"
+                                "es" -> "Copia de Seguridad Encriptada y Restauración"
+                                "ru" -> "Зашифрованное резервное копирование"
+                                "zh" -> "加密 SQLite 数据库备份与恢复"
+                                "ja" -> "暗号化SQLite DBバックアップと復元"
+                                else -> "Encrypted SQLite Backup & Restore"
                             },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
@@ -618,15 +638,15 @@ fun SettingsScreen(
                         )
                         Text(
                             text = when (currentLanguage) {
-                                "bn" -> "অ্যাপের সব ডেটা JSON ফাইল হিসেবে ব্যাকআপ ও ইমপোর্ট করুন"
-                                "ar" -> "تصدير واستيراد بيانات التطبيق في ملف JSON"
-                                "hi" -> "JSON फ़ाइल के रूप में ऐप डेटा निर्यात और आयात करें"
-                                "ur" -> "JSON فائل کے طور پر ایپ ڈیٹا ایکسپورٹ اور امپورٹ کریں"
-                                "es" -> "Exporta e importa datos de la app en archivo JSON"
-                                "ru" -> "Экспорт и импорт данных приложения в JSON"
-                                "zh" -> "将应用数据导出和导入为 JSON 文件"
-                                "ja" -> "アプリデータをJSONファイルでエクスポート・インポート"
-                                else -> "Export and import app data in a JSON file"
+                                "bn" -> "অ্যাপের সব ডাটা এনক্রিপ্টেড SQLite ডাটাবেস (.db) ফাইল হিসেবে ব্যাকআপ ও ইমপোর্ট করুন"
+                                "ar" -> "تصدير واستيراد بيانات التطبيق في ملف قاعدة بيانات SQLite مشفر (.db)"
+                                "hi" -> "एनक्रिप्टेड SQLite डेटाबेस (.db) फ़ाइल के रूप में ऐप डेटा निर्यात और आयात करें"
+                                "ur" -> "انکرپٹڈ SQLite ڈیٹا بیس (.db) فائل کے طور پر ایپ ڈیٹا ایکسپورٹ اور امپورٹ کریں"
+                                "es" -> "Exporta e importa datos de la app en archivo SQLite encriptado (.db)"
+                                "ru" -> "Экспорт и импорт данных приложения в зашифрованном файле SQLite (.db)"
+                                "zh" -> "将应用数据导出和导入为加密的 SQLite 数据库 (.db) 文件"
+                                "ja" -> "アプリデータを暗号化されたSQLite DBファイル(.db)でエクスポート・インポート"
+                                else -> "Export and import app data in an encrypted SQLite database (.db) file"
                             },
                             fontSize = 12.sp,
                             color = TextMuted
@@ -656,15 +676,15 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = when (currentLanguage) {
-                                "bn" -> "এক্সপোর্ট (Export)"
-                                "ar" -> "تصدير (Export)"
-                                "hi" -> "निर्यात (Export)"
-                                "ur" -> "ایکسپورٹ (Export)"
-                                "es" -> "Exportar (Export)"
-                                "ru" -> "Экспорт (Export)"
-                                "zh" -> "导出 (Export)"
-                                "ja" -> "エクスポート (Export)"
-                                else -> "Export JSON"
+                                "bn" -> "এক্সপোর্ট (.db)"
+                                "ar" -> "تصدير (.db)"
+                                "hi" -> "निर्यात (.db)"
+                                "ur" -> "ایکسپورٹ (.db)"
+                                "es" -> "Exportar (.db)"
+                                "ru" -> "Экспорт (.db)"
+                                "zh" -> "导出 (.db)"
+                                "ja" -> "エクスポート (.db)"
+                                else -> "Export (.db)"
                             },
                             fontSize = 12.sp
                         )
@@ -686,15 +706,15 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = when (currentLanguage) {
-                                "bn" -> "ইমপোর্ট (Import)"
-                                "ar" -> "استيراد (Import)"
-                                "hi" -> "आयात (Import)"
-                                "ur" -> "امپورٹ (Import)"
-                                "es" -> "Importar (Import)"
-                                "ru" -> "Импорт (Import)"
-                                "zh" -> "导入 (Import)"
-                                "ja" -> "インポート (Import)"
-                                else -> "Import JSON"
+                                "bn" -> "ইমপোর্ট (.db)"
+                                "ar" -> "استيراد (.db)"
+                                "hi" -> "आयात (.db)"
+                                "ur" -> "امپورٹ (.db)"
+                                "es" -> "Importar (.db)"
+                                "ru" -> "Импорт (.db)"
+                                "zh" -> "导入 (.db)"
+                                "ja" -> "インポート (.db)"
+                                else -> "Import (.db)"
                             },
                             fontSize = 12.sp
                         )
@@ -1043,30 +1063,44 @@ fun SettingsScreen(
         }
     }
 
-    if (showImportOptionsDialog && pendingImportJson != null) {
+    if (showDecryptPinDialog && selectedBackupBytes != null) {
+        BackupDecryptPinDialog(
+            appLanguage = currentLanguage,
+            onDismiss = {
+                showDecryptPinDialog = false
+                selectedBackupBytes = null
+            },
+            onPinSubmitted = { enteredPin ->
+                val bytes = selectedBackupBytes!!
+                processImportBytes(bytes, enteredPin)
+            }
+        )
+    }
+
+    if (showImportOptionsDialog && pendingRawImportBytes != null) {
         ImportOptionsDialog(
             exportTime = pendingExportTime,
             appLanguage = currentLanguage,
             onDismiss = {
                 showImportOptionsDialog = false
-                pendingImportJson = null
+                pendingRawImportBytes = null
             },
             onConfirmImport = { adjustTimestamps ->
-                val jsonToImport = pendingImportJson!!
+                val rawBytes = pendingRawImportBytes!!
                 showImportOptionsDialog = false
-                pendingImportJson = null
-                viewModel.importBackupJson(jsonToImport, adjustTimestamps) { success ->
+                pendingRawImportBytes = null
+                viewModel.importBackupDb(rawBytes, adjustTimestamps, pendingExportTime) { success ->
                     if (success) {
                         Toast.makeText(context, when (currentLanguage) {
-                            "bn" -> "ব্যাকআপ ফাইল ইমপোর্ট সফল হয়েছে"
-                            "ar" -> "تم استيراد النسخة الاحتياطية بنجاح"
-                            "hi" -> "बैकअप फ़ाइल सफलतापूर्वक आयात की गई"
-                            "ur" -> "بیک اپ فائل امپورٹ ہو گئی"
-                            "es" -> "Copia de seguridad importada con éxito"
-                            "ru" -> "Резервная копия успешно импортирована"
-                            "zh" -> "备份文件导入成功"
-                            "ja" -> "バックアップファイルがインポートされました"
-                            else -> "Backup file imported successfully"
+                            "bn" -> "এনক্রিপ্টেড ব্যাকআপ ডাটাবেস রিস্টোর সফল হয়েছে"
+                            "ar" -> "تمت استعادة قاعدة البيانات المشفرة بنجاح"
+                            "hi" -> "एनक्रिप्टेड डेटाबेस रिस्टोर सफल हुआ"
+                            "ur" -> "انکرپٹڈ ڈیٹا بیس ریسٹور کامیاب رہا"
+                            "es" -> "Base de datos encriptada restaurada con éxito"
+                            "ru" -> "Зашифрованная база данных успешно восстановлена"
+                            "zh" -> "加密数据库恢复成功"
+                            "ja" -> "暗号化データベースが復元されました"
+                            else -> "Encrypted database backup restored successfully"
                         }, Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, when (currentLanguage) {
@@ -1206,6 +1240,117 @@ fun SettingsScreen(
             }
         )
     }
+}
+
+@Composable
+fun BackupDecryptPinDialog(
+    appLanguage: String = "en",
+    onDismiss: () -> Unit,
+    onPinSubmitted: (pin: String) -> Unit
+) {
+    var pinInput by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = when (appLanguage) {
+                    "bn" -> "ডিক্রিপশন পিন দিন"
+                    "ar" -> "أدخل رمز فك التشفير"
+                    "hi" -> "डिक्रिप्शन पिन दर्ज करें"
+                    "ur" -> "ڈیکرپشن پن درج کریں"
+                    "es" -> "Introduce PIN de Descifrado"
+                    "ru" -> "Введите PIN расшифровки"
+                    "zh" -> "解密 PIN 码"
+                    "ja" -> "復号用PIN入力"
+                    else -> "Backup Decryption PIN"
+                },
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "এই ব্যাকআপ ফাইলটি খুলতে ৪-ডিজিট পিন দিন:"
+                        "ar" -> "أدخل الرمز المكون من 4 أرقام لفتح هذا الملف:"
+                        "hi" -> "इस बैकअप फ़ाइल को खोलने के लिए 4-अंकीय पिन दर्ज करें:"
+                        "ur" -> "یہ بیک اپ کھولنے کے لیے 4 ہندسوں کا پن درج کریں:"
+                        "es" -> "Introduce el PIN de 4 dígitos para abrir la copia:"
+                        "ru" -> "Введите 4-значный PIN для открытия этой резервной копии:"
+                        "zh" -> "解密该备份文件所需的 4位数 PIN 码:"
+                        "ja" -> "このバックアップを開くための4桁のPINを入力してください:"
+                        else -> "Enter 4-digit PIN to decrypt this backup file:"
+                    },
+                    color = TextMuted,
+                    fontSize = 13.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PinBoxInput(
+                    pinValue = pinInput,
+                    onPinChange = {
+                        pinInput = it
+                        if (it.length == 4) {
+                            onPinSubmitted(it)
+                        }
+                    },
+                    focusRequester = focusRequester
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (pinInput.length == 4) {
+                        onPinSubmitted(pinInput)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
+            ) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "ডিক্রিপ্ট করুন"
+                        "ar" -> "فك التشفير"
+                        "hi" -> "डिक्रिप्ट करें"
+                        "ur" -> "ڈیکرپٹ"
+                        "es" -> "Descifrar"
+                        "ru" -> "Расшифровать"
+                        "zh" -> "解密"
+                        "ja" -> "復号する"
+                        else -> "Decrypt & Open"
+                    },
+                    color = DarkSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = when (appLanguage) {
+                        "bn" -> "বাতিল"
+                        "ar" -> "إلغاء"
+                        "hi" -> "रद्द करें"
+                        "ur" -> "منسوخ کریں"
+                        "es" -> "Cancelar"
+                        "ru" -> "Отмена"
+                        "zh" -> "取消"
+                        "ja" -> "キャンセル"
+                        else -> "Cancel"
+                    }
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -1447,7 +1592,7 @@ fun ChangePinDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
-                        "hi" -> "रद्द करें"
+                        "hi" -> "রद्द करें"
                         "ur" -> "منسوخ کریں"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"
@@ -1711,7 +1856,7 @@ fun ImportOptionsDialog(
                     text = when (appLanguage) {
                         "bn" -> "বাতিল"
                         "ar" -> "إلغاء"
-                        "hi" -> "रद्द करें"
+                        "hi" -> "রद्द करें"
                         "ur" -> "منسوخ"
                         "es" -> "Cancelar"
                         "ru" -> "Отмена"
