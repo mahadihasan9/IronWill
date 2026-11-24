@@ -189,17 +189,20 @@ class StreakDatabaseHelper(context: Context) :
     fun saveTimer(timer: StreakTimer) {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(KEY_TIMER_ID, timer.id)
             put(KEY_TIMER_NAME, timer.name)
             put(KEY_TIMER_START_TIMESTAMP, timer.startTimestamp)
             put(KEY_TIMER_IS_TRACKING, if (timer.isTracking) 1 else 0)
         }
-        db.insertWithOnConflict(
+        val updatedRows = db.update(
             TABLE_TIMERS,
-            null,
             values,
-            SQLiteDatabase.CONFLICT_REPLACE
+            "$KEY_TIMER_ID = ?",
+            arrayOf(timer.id)
         )
+        if (updatedRows == 0) {
+            values.put(KEY_TIMER_ID, timer.id)
+            db.insert(TABLE_TIMERS, null, values)
+        }
     }
 
     fun deleteTimer(timerId: String) {
@@ -248,7 +251,9 @@ class StreakDatabaseHelper(context: Context) :
     fun addHistoryItem(timerId: String, history: StreakHistory) {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(KEY_HISTORY_ID, history.id)
+            if (history.id > 0L) {
+                put(KEY_HISTORY_ID, history.id)
+            }
             put(KEY_HISTORY_TIMER_ID, timerId)
             put(KEY_HISTORY_START_TIMESTAMP, history.startTimestamp)
             put(KEY_HISTORY_END_TIMESTAMP, history.endTimestamp)

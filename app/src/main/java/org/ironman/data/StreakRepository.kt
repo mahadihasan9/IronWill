@@ -52,6 +52,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "iron_will_settings")
@@ -82,7 +83,7 @@ data class BackupInfo(
 class StreakRepository(private val context: Context) {
 
     private val dbHelper = StreakDatabaseHelper(context)
-    private val dbChangeTrigger = MutableStateFlow(System.currentTimeMillis())
+    private val dbChangeTrigger = MutableStateFlow(0L)
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -91,7 +92,7 @@ class StreakRepository(private val context: Context) {
     }
 
     private fun notifyChanged() {
-        dbChangeTrigger.value = System.currentTimeMillis()
+        dbChangeTrigger.update { it + 1 }
     }
 
     val selectedTimerIdFlow: Flow<String> = dbChangeTrigger.map {
@@ -178,7 +179,7 @@ class StreakRepository(private val context: Context) {
         if (timer.isTracking) {
             val endTs = if (now >= timer.startTimestamp) now else System.currentTimeMillis()
             val newHistoryItem = StreakHistory(
-                id = System.currentTimeMillis(),
+                id = 0L,
                 startTimestamp = timer.startTimestamp,
                 endTimestamp = endTs,
                 note = note.replace("\n", " ").replace(";", ",")
@@ -345,6 +346,7 @@ class StreakRepository(private val context: Context) {
             tempDbFile.delete()
 
             dbHelper.replaceAllData(settingsMap, adjustedTimers)
+            dbHelper.setSetting("migrated_from_datastore", "true")
             notifyChanged()
             true
         } catch (e: Exception) {
