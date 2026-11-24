@@ -29,6 +29,15 @@ Download the latest APK from GitHub Releases:
 - **Nine languages** - English, Bengali, Arabic, Hindi, Urdu, Spanish, Russian, Chinese, and Japanese.
 - **Fully local storage** - Your streak data stays on your device.
 
+## Screenshots
+
+<p align="center">
+  <img src="ss/1.png" width="220" alt="Iron Will home screen">
+  <img src="ss/2.png" width="220" alt="Iron Will statistics screen">
+  <img src="ss/3.png" width="220" alt="Iron Will history screen">
+  <img src="ss/4.png" width="220" alt="Iron Will settings screen">
+</p>
+
 ## Built With
 
 - Kotlin
