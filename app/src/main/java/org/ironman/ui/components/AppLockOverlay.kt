@@ -80,6 +80,7 @@ import org.ironman.ui.theme.TextPrimary
 fun AppLockOverlay(
     correctPin: String,
     appLanguage: String = "en",
+    disguiseName: String = "Iron Will",
     onSaveInitialPin: (newPin: String) -> Unit = {},
     onUnlockSuccess: () -> Unit
 ) {
@@ -133,15 +134,15 @@ fun AppLockOverlay(
                     }
                 } else {
                     when (appLanguage) {
-                        "bn" -> "আইরন উইল লক করা আছে"
-                        "ar" -> "تطبيق IRON WILL مقفل"
-                        "hi" -> "आयरन विल लॉक है"
-                        "ur" -> "آئرن ول لاک ہے"
-                        "es" -> "IRON WILL BLOQUEADO"
-                        "ru" -> "IRON WILL ЗАБЛОКИРОВАН"
-                        "zh" -> "IRON WILL 已锁定"
-                        "ja" -> "IRON WILL ロック中"
-                        else -> "IRON WILL LOCKED"
+                        "bn" -> "$disguiseName লক করা আছে"
+                        "ar" -> "$disguiseName مقفل"
+                        "hi" -> "$disguiseName लॉक है"
+                        "ur" -> "$disguiseName لاک ہے"
+                        "es" -> "$disguiseName Bloqueado"
+                        "ru" -> "$disguiseName заблокирован"
+                        "zh" -> "$disguiseName 已锁定"
+                        "ja" -> "$disguiseName ロック中"
+                        else -> "$disguiseName is Locked"
                     }
                 },
                 fontSize = 20.sp,

@@ -66,11 +66,14 @@ object UpdateChecker {
         }
 
         try {
-            val url = URL(GITHUB_API_URL)
+            val url = URL("$GITHUB_API_URL?t=${System.currentTimeMillis()}")
             val connection = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
+                useCaches = false
                 setRequestProperty("User-Agent", "IronWillApp/$currentVersion")
                 setRequestProperty("Accept", "application/vnd.github.v3+json")
+                setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
+                setRequestProperty("Pragma", "no-cache")
                 connectTimeout = 8000
                 readTimeout = 8000
             }

@@ -53,6 +53,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.OpenInNew
@@ -111,6 +112,7 @@ import org.ironman.ui.theme.TextMuted
 import org.ironman.ui.theme.TextPrimary
 import org.ironman.ui.theme.TextSecondary
 import org.ironman.ui.viewmodel.MainViewModel
+import org.ironman.utils.AutoBackupManager
 import org.ironman.utils.LauncherAliasManager
 import org.ironman.utils.UpdateStatus
 
@@ -159,6 +161,12 @@ fun SettingsScreen(
 
     var showPinDialogForBackup by remember { mutableStateOf(false) }
     var pendingBackupAction by remember { mutableStateOf(BackupActionType.EXPORT) }
+
+    val autoBackupEnabled by viewModel.autoBackupEnabled.collectAsState()
+    val autoBackupUri by viewModel.autoBackupUri.collectAsState()
+    var showPinDialogForAutoBackup by remember { mutableStateOf(false) }
+    var showCreatePinDialogForAutoBackup by remember { mutableStateOf(false) }
+    var targetAutoBackupState by remember { mutableStateOf(false) }
 
     var pendingExportBytes by remember { mutableStateOf<ByteArray?>(null) }
     var pendingRawImportBytes by remember { mutableStateOf<ByteArray?>(null) }
@@ -245,6 +253,26 @@ fun SettingsScreen(
 
     val triggerImport = {
         openDocumentLauncher.launch(arrayOf("application/octet-stream", "application/x-sqlite3", "*/*"))
+    }
+
+    val autoBackupFolderLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let { folderUri ->
+            AutoBackupManager.persistFolderPermission(context, folderUri)
+            viewModel.setAutoBackup(true, folderUri.toString())
+            Toast.makeText(context, when (currentLanguage) {
+                "bn" -> "অটো ব্যাকআপ চালু হয়েছে"
+                "ar" -> "تم تفعيل النسخ الاحتياطي التلقائي"
+                "hi" -> "ऑटो बैकअप सक्षम किया गया"
+                "ur" -> "آٹو بیک اپ فعال ہو گیا"
+                "es" -> "Copia de seguridad automática activada"
+                "ru" -> "Автоматическое резервное копирование включено"
+                "zh" -> "自动备份已启用"
+                "ja" -> "自動バックアップが有効になりました"
+                else -> "Auto backup enabled"
+            }, Toast.LENGTH_SHORT).show()
+        }
     }
 
     val scrollState = rememberScrollState()
@@ -853,6 +881,124 @@ fun SettingsScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
+                                imageVector = Icons.Default.Folder,
+                                contentDescription = "Auto Backup",
+                                tint = PrimaryCyan,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = when (currentLanguage) {
+                                    "bn" -> "ফোল্ডারে অটো ব্যাকআপ ও সিঙ্ক"
+                                    "ar" -> "النسخ الاحتياطي التلقائي والمزامنة"
+                                    "hi" -> "फ़ोल्डर में ऑटो बैकअप और सिंक"
+                                    "ur" -> "فولڈر میں آٹو بیک اپ اور سنک"
+                                    "es" -> "Copia y Sincronización Automática"
+                                    "ru" -> "Автосохранение и синхронизация"
+                                    "zh" -> "自动备份与同步到文件夹"
+                                    "ja" -> "フォルダへの自動バックアップと同期"
+                                    else -> "Auto Backup & Sync to Folder"
+                                },
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = when (currentLanguage) {
+                                    "bn" -> "পিন দিয়ে ফোল্ডার নির্বাচন করুন, ডাটা বদলালেই ব্যাকআপ সিঙ্ক হবে (পিন প্রয়োজন)"
+                                    "ar" -> "اختر مجلدًا باستخدام الرمز، وستتم المزامنة عند تغيير البيانات (يلزم PIN)"
+                                    "hi" -> "पिन से फ़ोल्डर चुनें, डेटा बदलने पर बैकअप सिंक होगा (पिन आवश्यक)"
+                                    "ur" -> "پن کے ذریعے فولڈر منتخب کریں، ڈیٹا بدلتے ہی بیک اپ سنک ہوگا (پن ضروری)"
+                                    "es" -> "Elige una carpeta con PIN; se sincroniza al cambiar datos (PIN requerido)"
+                                    "ru" -> "Выберите папку с PIN; синхронизация при изменении данных (требуется PIN)"
+                                    "zh" -> "使用 PIN 选择文件夹，数据更新时自动同步（需要 PIN）"
+                                    "ja" -> "PINでフォルダを選択し、データ更新時に同期します（PIN必須）"
+                                    else -> "Pick a folder with PIN; syncs whenever data changes (PIN required)"
+                                },
+                                fontSize = 12.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+
+                    Switch(
+                        checked = autoBackupEnabled,
+                        onCheckedChange = { newState ->
+                            targetAutoBackupState = newState
+                            if (newState) {
+                                if (pinCode.isBlank()) {
+                                    showCreatePinDialogForAutoBackup = true
+                                } else {
+                                    showPinDialogForAutoBackup = true
+                                }
+                            } else {
+                                if (pinCode.isBlank()) {
+                                    viewModel.setAutoBackup(false, "")
+                                } else {
+                                    showPinDialogForAutoBackup = true
+                                }
+                            }
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = PrimaryCyan,
+                            checkedTrackColor = DarkSurfaceVariant
+                        )
+                    )
+                }
+
+                if (autoBackupEnabled && autoBackupUri.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = when (currentLanguage) {
+                            "bn" -> "সিঙ্ক ফোল্ডার: $autoBackupUri"
+                            "ar" -> "مجلد المزامنة: $autoBackupUri"
+                            "hi" -> "सिंक फ़ोल्डर: $autoBackupUri"
+                            "ur" -> "سنک فولڈر: $autoBackupUri"
+                            "es" -> "Carpeta de sincronización: $autoBackupUri"
+                            "ru" -> "Папка синхронизации: $autoBackupUri"
+                            "zh" -> "同步文件夹: $autoBackupUri"
+                            "ja" -> "同期フォルダ: $autoBackupUri"
+                            else -> "Sync folder: $autoBackupUri"
+                        },
+                        fontSize = 11.sp,
+                        color = TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(width = 1.dp, color = CardBorder, shape = RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryCyan.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
                                 imageVector = Icons.Default.SystemUpdate,
                                 contentDescription = "App Update",
                                 tint = PrimaryCyan,
@@ -1271,6 +1417,45 @@ fun SettingsScreen(
                     triggerExport()
                 } else {
                     triggerImport()
+                }
+            }
+        )
+    }
+
+    if (showCreatePinDialogForAutoBackup) {
+        CreatePinDialog(
+            appLanguage = currentLanguage,
+            onDismiss = { showCreatePinDialogForAutoBackup = false },
+            onPinCreated = { newPin ->
+                viewModel.setPinCode(newPin)
+                showCreatePinDialogForAutoBackup = false
+                autoBackupFolderLauncher.launch(null)
+            }
+        )
+    }
+
+    if (showPinDialogForAutoBackup) {
+        PinVerificationDialog(
+            correctPin = pinCode,
+            appLanguage = currentLanguage,
+            subtitle = when (currentLanguage) {
+                "bn" -> "অটো ব্যাকআপ সেটিং পরিবর্তন করতে পিন লিখুন:"
+                "ar" -> "أدخل الرمز لتغيير إعداد النسخ الاحتياطي التلقائي:"
+                "hi" -> "ऑटो बैकअप सेटिंग बदलने के लिए पिन दर्ज करें:"
+                "ur" -> "آٹو بیک اپ کی سیٹنگ تبدیل کرنے کے لیے پن درج کریں:"
+                "es" -> "Introduce el PIN para cambiar la copia automática:"
+                "ru" -> "Введите PIN для изменения автосохранения:"
+                "zh" -> "输入 PIN 码以更改自动备份设置:"
+                "ja" -> "自動バックアップ設定を変更するにはPINを入力してください:"
+                else -> "Enter PIN to change Auto Backup setting:"
+            },
+            onDismiss = { showPinDialogForAutoBackup = false },
+            onPinSuccess = {
+                showPinDialogForAutoBackup = false
+                if (targetAutoBackupState) {
+                    autoBackupFolderLauncher.launch(null)
+                } else {
+                    viewModel.setAutoBackup(false, "")
                 }
             }
         )

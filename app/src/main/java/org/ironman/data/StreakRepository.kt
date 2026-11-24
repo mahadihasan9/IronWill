@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.ironman.utils.AutoBackupManager
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "iron_will_settings")
 
@@ -80,19 +81,24 @@ data class BackupInfo(
     }
 }
 
-class StreakRepository(private val context: Context) {
+class StreakRepository(private val context: Context, autoMigrate: Boolean = true) {
 
     private val dbHelper = StreakDatabaseHelper(context)
     private val dbChangeTrigger = MutableStateFlow(0L)
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
-            migrateLegacyDataStoreIfNeeded()
+        if (autoMigrate) {
+            CoroutineScope(Dispatchers.IO).launch {
+                migrateLegacyDataStoreIfNeeded()
+            }
         }
     }
 
     private fun notifyChanged() {
         dbChangeTrigger.update { it + 1 }
+        val autoBackupEnabled = dbHelper.getSetting(AutoBackupManager.KEY_ENABLED, "false") == "true"
+        val autoBackupUri = dbHelper.getSetting(AutoBackupManager.KEY_URI, "")
+        AutoBackupManager.requestBackup(context, autoBackupEnabled, autoBackupUri)
     }
 
     val selectedTimerIdFlow: Flow<String> = dbChangeTrigger.map {
@@ -125,6 +131,14 @@ class StreakRepository(private val context: Context) {
 
     val selectedNameIndexFlow: Flow<Int> = dbChangeTrigger.map {
         dbHelper.getSetting("selected_name_index", "0").toIntOrNull() ?: 0
+    }
+
+    val autoBackupEnabledFlow: Flow<Boolean> = dbChangeTrigger.map {
+        dbHelper.getSetting(AutoBackupManager.KEY_ENABLED, "false").toBoolean()
+    }
+
+    val autoBackupUriFlow: Flow<String> = dbChangeTrigger.map {
+        dbHelper.getSetting(AutoBackupManager.KEY_URI, "")
     }
 
     suspend fun selectTimer(id: String) {
@@ -241,6 +255,12 @@ class StreakRepository(private val context: Context) {
     suspend fun saveDisguiseSelection(iconId: Int, nameIndex: Int) {
         dbHelper.setSetting("selected_icon_id", iconId.toString())
         dbHelper.setSetting("selected_name_index", nameIndex.toString())
+        notifyChanged()
+    }
+
+    suspend fun setAutoBackup(enabled: Boolean, uri: String) {
+        dbHelper.setSetting(AutoBackupManager.KEY_ENABLED, enabled.toString())
+        dbHelper.setSetting(AutoBackupManager.KEY_URI, if (enabled) uri else "")
         notifyChanged()
     }
 

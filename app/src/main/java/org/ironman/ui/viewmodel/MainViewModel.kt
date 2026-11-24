@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.ironman.data.Quote
 import org.ironman.data.QuotesProvider
+import org.ironman.data.RankInfo
+import org.ironman.data.RankSystem
 import org.ironman.data.StreakHistory
 import org.ironman.data.StreakRepository
 import org.ironman.data.StreakTimer
@@ -55,13 +57,6 @@ data class StreakStats(
     val longestStreakMillis: Long = 0,
     val totalResets: Int = 0,
     val averageStreakMillis: Long = 0
-)
-
-data class RankInfo(
-    val title: String,
-    val minDays: Int,
-    val nextRankTitle: String,
-    val daysToNextRank: Int
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -143,6 +138,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = 0
+    )
+
+    val autoBackupEnabled: StateFlow<Boolean> = repository.autoBackupEnabledFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+    val autoBackupUri: StateFlow<String> = repository.autoBackupUriFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
     )
 
     private val _currentTimeMillis = MutableStateFlow(System.currentTimeMillis())
@@ -261,6 +268,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setAutoBackup(enabled: Boolean, uri: String) {
+        viewModelScope.launch {
+            repository.setAutoBackup(enabled, uri)
+        }
+    }
+
     fun refreshQuote() {
         _currentQuote.value = QuotesProvider.getRandomQuoteDifferentFrom(_currentQuote.value)
     }
@@ -353,15 +366,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getRankInfo(currentDays: Long): RankInfo {
-        return when {
-            currentDays < 1 -> RankInfo("Novice", 0, "Iron Mind", 1 - currentDays.toInt())
-            currentDays < 3 -> RankInfo("Bronze Will", 1, "Iron Will", 3 - currentDays.toInt())
-            currentDays < 7 -> RankInfo("Iron Will", 3, "Steel Mind", 7 - currentDays.toInt())
-            currentDays < 14 -> RankInfo("Steel Mind", 7, "Unstoppable", 14 - currentDays.toInt())
-            currentDays < 30 -> RankInfo("Unstoppable", 14, "Titan", 30 - currentDays.toInt())
-            currentDays < 90 -> RankInfo("Titan", 30, "Iron Legend", 90 - currentDays.toInt())
-            else -> RankInfo("Iron Legend", 90, "Master of Will", 365 - currentDays.toInt())
-        }
-    }
+    fun getRankInfo(currentDays: Long): RankInfo = RankSystem.getRankInfo(currentDays)
 }
